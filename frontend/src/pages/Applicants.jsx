@@ -48,31 +48,60 @@ const Applicants = () => {
                     <p>No applicants yet.</p>
                 ) : (
                     job.applications?.map((app) => (
-                        <div key={app._id} className="border p-4 rounded flex justify-between items-center dark:border-gray-700">
-                            <div>
-                                <h3 className="font-semibold">{app.applicant?.fullname}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{app.applicant?.email}</p>
-                                <span className="text-xs bg-[#F4F4F5] dark:bg-gray-700 dark:text-gray-200 px-2 py-1 rounded mt-1 inline-block">
-                                    {app.status}
-                                </span>
+                        <div key={app._id} className="border p-5 rounded dark:border-gray-700">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 className="font-semibold text-lg">{app.applicant?.fullname}</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">{app.applicant?.email}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">{app.applicant?.phoneNumber}</p>
+                                    <span className="text-xs bg-[#F4F4F5] dark:bg-gray-700 dark:text-gray-200 px-2 py-1 rounded mt-2 inline-block">
+                                        {app.status}
+                                    </span>
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <button
+                                        disabled={loading || app.status !== "pending"}
+                                        onClick={() => statusHandler(app._id, "accepted")}
+                                        className="bg-[#ACFFD2] text-gray-900 px-3 py-1.5 rounded text-sm disabled:opacity-50"
+                                    >
+                                        Accept
+                                    </button>
+                                    <button
+                                        disabled={loading || app.status !== "pending"}
+                                        onClick={() => statusHandler(app._id, "rejected")}
+                                        className="bg-red-500 text-white px-3 py-1.5 rounded text-sm disabled:opacity-50"
+                                    >
+                                        Reject
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="flex gap-2">
-                                <button
-                                    disabled={loading}
-                                    onClick={() => statusHandler(app._id, "accepted")}
-                                    className="bg-[#ACFFD2] text-gray-900 px-3 py-1.5 rounded text-sm"
-                                >
-                                    Accept
-                                </button>
-                                <button
-                                    disabled={loading}
-                                    onClick={() => statusHandler(app._id, "rejected")}
-                                    className="bg-red-500 text-white px-3 py-1.5 rounded text-sm"
-                                >
-                                    Reject
-                                </button>
-                            </div>
+                            {app.applicant?.profile?.bio ? (
+                                <div className="mb-2">
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Bio</p>
+                                    <p className="text-sm">{app.applicant.profile.bio}</p>
+                                </div>
+                            ) : null}
+
+                            {app.applicant?.profile?.skills?.length > 0 ? (
+                                <div className="mb-2">
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Skills</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {app.applicant.profile.skills.map((skill, idx) => (
+                                            <span key={idx} className="text-xs bg-[#F4F4F5] dark:bg-gray-700 dark:text-gray-200 px-2 py-1 rounded">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            {app.applicant?.profile?.resume ? (
+                                <a href={app.applicant.profile.resume} target="_blank" rel="noreferrer" className="text-sm text-[#8B5CF6] mt-2 inline-block">
+                                    View Resume
+                                </a>
+                            ) : null}
                         </div>
                     ))
                 )}
