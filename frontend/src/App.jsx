@@ -14,7 +14,7 @@ import Conversations from "./pages/Conversations";
 import Chat from "./pages/Chat";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
-
+import CompanyRegister from "./pages/CompanyRegister";
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
@@ -36,6 +36,7 @@ function App() {
         <Route path="/chat/:id" element={<Chat />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/company/register" element={<CompanyRegister />} />
       </Routes>
     </>
   );
