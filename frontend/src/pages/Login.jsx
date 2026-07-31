@@ -59,6 +59,10 @@ const Login = () => {
                         <input type="radio" name="role" value="recruiter" checked={input.role === "recruiter"} onChange={changeHandler} />
                         Recruiter
                     </label>
+                      <label className="flex items-center gap-2">
+                        <input type="radio" name="role" value="admin" checked={input.role === "admin"} onChange={changeHandler} />
+                    Admin
+                    </label>
                 </div>
 
                 <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">

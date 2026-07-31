@@ -47,6 +47,9 @@ const Navbar = () => {
                                 <Link to="/company/register" className="text-sm">Add Company</Link>
                             </>
                         )}
+                        {user.role === "admin" && (
+                            <Link to="/admin/pending-jobs" className="text-sm">Pending Jobs</Link>
+                        )}
 
                         <Link to="/notifications" className="text-sm relative">
                             🔔

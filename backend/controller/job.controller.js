@@ -49,6 +49,7 @@ export const getAllJob = async(req,res)=>{
         const experience = req.query.experience;
 
         const query = {
+            status : "approved",
             $or: [
                 {title: {$regex:keyword, $options: "i"}},
                 {Description: {$regex:keyword, $options: "i"}},
@@ -146,5 +147,57 @@ export const getAdminJobs = async(req,res) =>{
         message: "Server error",
         success: false
     });
+    }
+}
+export const getPendingJobs = async (req, res) => {
+    try {
+        const jobs = await Job.find({ status: "pending" })
+            .populate("company")
+            .populate("created_by")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            jobs,
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+}
+export const updateJobStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!["approved", "rejected"].includes(status)) {
+            return res.status(400).json({
+                message: "Invalid status",
+                success: false
+            });
+        }
+
+        const job = await Job.findByIdAndUpdate(id, { status }, { new: true });
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: `Job ${status} successfully`,
+            job,
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
     }
 }
