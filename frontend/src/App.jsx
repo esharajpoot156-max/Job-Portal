@@ -16,6 +16,7 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import CompanyRegister from "./pages/CompanyRegister";
 import AdminPendingJobs from "./pages/AdminPendingJobs";
+import Footer from "./components/Footer";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -23,8 +24,9 @@ function App() {
   return (
     <>
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
-
+      <div className="flex flex-col min-h-screen" >
       <Navbar />
+      <div className="flex-1">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -41,6 +43,9 @@ function App() {
         <Route path="/company/register" element={<CompanyRegister />} />
         <Route path="/admin/pending-jobs" element={<AdminPendingJobs />} />
       </Routes>
+      </div>
+      <Footer/>
+    </div>
     </>
   );
 }
