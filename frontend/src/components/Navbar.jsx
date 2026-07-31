@@ -21,7 +21,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="flex items-center justify-between px-8 py-4 shadow-md bg-white dark:bg-[#121214] dark:text-white">
+        <nav className="flex items-center justify-between px-8 py-4 shadow-md bg-[#121214] text-white">
             <Link to="/" className="text-xl font-bold text-[#8B5CF6]">JobEase</Link>
 
             <div className="flex items-center gap-6">
@@ -48,7 +48,7 @@ const Navbar = () => {
                         <Link to="/notifications" className="text-sm relative">
                             🔔
                         </Link>
-                        
+
                         {user && (
                             <Link to="/profile" className="text-sm">Profile</Link>
                         )}
