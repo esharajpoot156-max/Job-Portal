@@ -21,7 +21,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="flex items-center justify-between px-8 py-4 shadow-md bg-[#121214] text-white">
+        <nav className="flex items-center justify-between px-8 py-4 shadow-md bg-[#F4F4F5] dark:bg-[#1a1a1d] text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
             <Link to="/" className="text-xl font-bold text-[#8B5CF6]">Job Portal</Link>
 
             <div className="flex items-center gap-6">
