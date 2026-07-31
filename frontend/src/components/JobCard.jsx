@@ -2,43 +2,51 @@ import { Link } from "react-router-dom";
 
 const JobCard = ({ job }) => {
     return (
-        <div className="group border dark:border-gray-700 rounded-xl p-5 hover:shadow-xl hover:-translate-y-1 transition-all bg-white dark:bg-[#1a1a1d]">
+        <div className="group relative border dark:border-gray-800 rounded-2xl p-6 bg-white dark:bg-[#1a1a1d] hover:shadow-2xl hover:shadow-[#8B5CF6]/10 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden">
+            {/* top accent line */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#8B5CF6] to-[#ACFFD2] scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+
             <div className="flex items-center gap-3 mb-4">
                 {job.company?.logo ? (
-                    <img src={job.company.logo} alt={job.company.name} className="w-11 h-11 rounded-lg object-cover" />
+                    <img src={job.company.logo} alt={job.company.name} className="w-12 h-12 rounded-xl object-cover" />
                 ) : (
-                    <div className="w-11 h-11 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] font-bold">
-                        {job.company?.name?.[0] || "?"}
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white font-bold text-lg">
+                        {job.company?.name?.[0]?.toUpperCase() || "?"}
                     </div>
                 )}
                 <div>
                     <h3 className="font-semibold text-sm dark:text-white">{job.company?.name}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{job.location}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        📍 {job.location}
+                    </p>
                 </div>
             </div>
 
             <h2 className="text-lg font-bold mb-2 dark:text-white group-hover:text-[#8B5CF6] transition-colors">
                 {job.title}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4">{job.Description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4 min-h-[2.5rem]">
+                {job.Description}
+            </p>
 
-            <div className="flex flex-wrap gap-2 mb-4">
-                <span className="text-xs bg-[#F4F4F5] dark:bg-gray-700 dark:text-gray-200 px-2.5 py-1 rounded-full">
+            <div className="flex flex-wrap gap-2 mb-5">
+                <span className="text-xs bg-[#8B5CF6]/10 text-[#8B5CF6] dark:bg-[#8B5CF6]/20 px-3 py-1 rounded-full font-medium">
                     {job.jobType}
                 </span>
-                <span className="text-xs bg-[#F4F4F5] dark:bg-gray-700 dark:text-gray-200 px-2.5 py-1 rounded-full">
-                    {job.position} positions
+                <span className="text-xs bg-gray-100 dark:bg-gray-800 dark:text-gray-300 px-3 py-1 rounded-full font-medium">
+                    👥 {job.position} openings
                 </span>
-                <span className="text-xs bg-[#ACFFD2] px-2.5 py-1 rounded-full text-gray-900 font-medium">
-                    ₨ {job.salary}
+                <span className="text-xs bg-[#ACFFD2] px-3 py-1 rounded-full text-gray-900 font-semibold">
+                    💰 Rs {job.salary}
                 </span>
             </div>
 
             <Link
                 to={`/jobs/${job._id}`}
-                className="block text-center w-full bg-[#8B5CF6] text-white py-2.5 rounded-lg hover:opacity-90 font-medium transition-opacity"
+                className="flex items-center justify-center gap-2 w-full bg-gray-900 dark:bg-[#8B5CF6] text-white py-2.5 rounded-xl font-medium group-hover:bg-[#8B5CF6] transition-colors"
             >
                 View Details
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
             </Link>
         </div>
     );
