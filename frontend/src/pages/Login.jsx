@@ -53,7 +53,7 @@ const Login = () => {
                 <div className="flex gap-4 mb-4">
                     <label className="flex items-center gap-2">
                         <input type="radio" name="role" value="student" checked={input.role === "student"} onChange={changeHandler} />
-                        Student
+                        Seeker
                     </label>
                     <label className="flex items-center gap-2">
                         <input type="radio" name="role" value="recruiter" checked={input.role === "recruiter"} onChange={changeHandler} />
