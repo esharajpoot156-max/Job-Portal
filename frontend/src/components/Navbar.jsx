@@ -22,7 +22,7 @@ const Navbar = () => {
 
     return (
         <nav className="flex items-center justify-between px-8 py-4 shadow-md bg-[#121214] text-white">
-            <Link to="/" className="text-xl font-bold text-[#8B5CF6]">JobEase</Link>
+            <Link to="/" className="text-xl font-bold text-[#8B5CF6]">Job Portal</Link>
 
             <div className="flex items-center gap-6">
                 {user && (
@@ -31,7 +31,7 @@ const Navbar = () => {
 
                 <button
                     onClick={() => setDarkMode(!darkMode)}
-                    className="text-sm px-3 py-1 rounded border border-gray-300 dark:border-gray-600"
+                    className="text-sm px-3 py-1 rounded border border-gray-600"
                 >
                     {darkMode ? "☀️ Light" : "🌙 Dark"}
                 </button>
@@ -42,16 +42,17 @@ const Navbar = () => {
                             <Link to="/messages" className="text-sm">Messages</Link>
                         )}
                         {user.role === "recruiter" && (
-                            <Link to="/admin/jobs" className="text-sm">My Jobs</Link>
+                            <>
+                                <Link to="/admin/jobs" className="text-sm">My Jobs</Link>
+                                <Link to="/company/register" className="text-sm">Add Company</Link>
+                            </>
                         )}
 
                         <Link to="/notifications" className="text-sm relative">
                             🔔
                         </Link>
 
-                        {user && (
-                            <Link to="/profile" className="text-sm">Profile</Link>
-                        )}
+                        <Link to="/profile" className="text-sm">Profile</Link>
 
                         <span className="text-sm">Hi, {user.fullname}</span>
                         <button onClick={logoutHandler} className="bg-red-500 text-white px-4 py-1.5 rounded">
