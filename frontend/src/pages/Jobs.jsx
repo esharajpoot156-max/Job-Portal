@@ -36,6 +36,8 @@ const Jobs = () => {
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#121214]">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-[#8B5CF6] opacity-20 rounded-full blur-3xl animate-blob"></div>
+            <div className="absolute top-40 right-10 w-72 h-72 bg-[#ACFFD2] opacity-20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
             {/* Search bar */}
             <div className="bg-[#F4F4F5] dark:bg-[#1a1a1d] border-b dark:border-gray-700 px-8 py-8">
                 <h1 className="text-2xl font-bold mb-4 dark:text-white">Find Your Next Job</h1>
