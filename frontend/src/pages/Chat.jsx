@@ -78,6 +78,8 @@ const Chat = () => {
 
     return (
         <div className="flex flex-col h-[calc(100vh-73px)] bg-white dark:bg-[#121214] dark:text-white">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-[#8B5CF6] opacity-20 rounded-full blur-3xl animate-blob"></div>
+            <div className="absolute top-40 right-10 w-72 h-72 bg-[#ACFFD2] opacity-20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
             <div className="p-4 border-b dark:border-gray-700 font-semibold">
                 {receiver?.fullname || "Chat"}
             </div>
