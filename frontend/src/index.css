@@ -46,3 +46,11 @@ body {
 .animation-delay-2000 {
     animation-delay: 2s;
 }
+@keyframes icon-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+.animate-icon-bounce {
+    animation: icon-bounce 2s ease-in-out infinite;
+}

@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import useInView from "../utils/useInView";
 
 const Home = () => {
     const { user } = useSelector((store) => store.auth);
+    const [statsRef, statsVisible] = useInView();
+    const [featuresRef, featuresVisible] = useInView();
 
     return (
         <div className="min-h-[calc(100vh-73px)] bg-white dark:bg-[#121214] dark:text-white overflow-hidden relative">
@@ -41,7 +44,12 @@ const Home = () => {
             </section>
 
             {/* Stats Section */}
-            <section className="relative flex flex-wrap justify-center gap-12 px-8 pb-20 max-w-4xl mx-auto text-center">
+            <section
+                ref={statsRef}
+                className={`relative flex flex-wrap justify-center gap-12 px-8 pb-20 max-w-4xl mx-auto text-center transition-all duration-700 ${
+                    statsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                }`}
+            >
                 <div>
                     <p className="text-3xl font-bold text-[#8B5CF6]">500+</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Active Jobs</p>
@@ -57,9 +65,14 @@ const Home = () => {
             </section>
 
             {/* Features Section */}
-            <section className="relative grid grid-cols-1 md:grid-cols-3 gap-6 px-8 pb-28 max-w-5xl mx-auto">
+            <section
+                ref={featuresRef}
+                className={`relative grid grid-cols-1 md:grid-cols-3 gap-6 px-8 pb-28 max-w-5xl mx-auto transition-all duration-700 ${
+                    featuresVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                }`}
+            >
                 <div className="p-7 rounded-xl border dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all bg-white dark:bg-[#1a1a1d]">
-                    <div className="w-12 h-12 rounded-lg bg-[#ACFFD2] flex items-center justify-center mb-4 text-xl">
+                    <div className="w-12 h-12 rounded-lg bg-[#ACFFD2] flex items-center justify-center mb-4 text-xl animate-icon-bounce">
                         🔍
                     </div>
                     <h3 className="font-semibold mb-2 text-lg">Search Jobs</h3>
@@ -69,7 +82,7 @@ const Home = () => {
                 </div>
 
                 <div className="p-7 rounded-xl border dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all bg-white dark:bg-[#1a1a1d]">
-                    <div className="w-12 h-12 rounded-lg bg-[#ACFFD2] flex items-center justify-center mb-4 text-xl">
+                    <div className="w-12 h-12 rounded-lg bg-[#ACFFD2] flex items-center justify-center mb-4 text-xl animate-icon-bounce" style={{ animationDelay: "0.3s" }}>
                         💬
                     </div>
                     <h3 className="font-semibold mb-2 text-lg">Chat Directly</h3>
@@ -79,7 +92,7 @@ const Home = () => {
                 </div>
 
                 <div className="p-7 rounded-xl border dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all bg-white dark:bg-[#1a1a1d]">
-                    <div className="w-12 h-12 rounded-lg bg-[#ACFFD2] flex items-center justify-center mb-4 text-xl">
+                    <div className="w-12 h-12 rounded-lg bg-[#ACFFD2] flex items-center justify-center mb-4 text-xl animate-icon-bounce" style={{ animationDelay: "0.6s" }}>
                         🔔
                     </div>
                     <h3 className="font-semibold mb-2 text-lg">Stay Updated</h3>
