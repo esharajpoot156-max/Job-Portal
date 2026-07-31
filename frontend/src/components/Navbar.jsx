@@ -38,7 +38,7 @@ const Navbar = () => {
 
                 {user ? (
                     <>
-                        {user.role === "student" && (
+                        {user && (
                             <Link to="/messages" className="text-sm">Messages</Link>
                         )}
                         {user.role === "recruiter" && (
