@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    --color-primary: #121214;
+    --color-secondary: #8B5CF6;
+    --color-tertiary: #ACFFD2;
+    --color-neutral: #F4F4F5;
+}
+
+body {
+    @apply bg-white text-gray-900 dark:bg-[#121214] dark:text-white transition-colors duration-300;
+}
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+    animation: spin-slow 2s linear infinite;
+    
+}
+
+@keyframes slide-up-exit {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-100%);
+    }
+}
+
+.animate-slide-up-exit {
+    animation: slide-up-exit 0.6s ease-in-out forwards;
+}
