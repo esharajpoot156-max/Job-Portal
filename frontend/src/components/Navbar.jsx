@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../utils/axiosInstance";
 import { logoutUser } from "../redux/authSlice";
 import { useTheme } from "../utils/ThemeContext";
+import logo from "../assets/logo.png";
 
 const Navbar = () => {
     const { user } = useSelector((store) => store.auth);
@@ -22,7 +23,9 @@ const Navbar = () => {
 
     return (
         <nav className="flex items-center justify-between px-8 py-4 shadow-md bg-[#F4F4F5] dark:bg-[#1a1a1d] text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
-            <Link to="/" className="text-xl font-bold text-[#8B5CF6]">Job Portal</Link>
+            <Link to="/" className="flex items-center gap-2">
+                <img src={logo} alt="Job Portal Logo" className="h-25 w-auto" />
+            </Link>
 
             <div className="flex items-center gap-6">
                 {user && (
