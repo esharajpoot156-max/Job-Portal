@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 const Footer = () => {
     return (
         <footer className="bg-[#F4F4F5] dark:bg-[#1a1a1d] border-t border-gray-200 dark:border-gray-700 mt-auto">
             <div className="max-w-6xl mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                    <h3 className="text-lg font-bold text-[#8B5CF6] mb-2">Job Portal</h3>
+                    <img src={logo} alt="Job Portal Logo" className="h-20 w-auto" />
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Connecting talent with opportunity — simple, fast, and free.
+                        © 2026 JobEase. All rights reserved.
                     </p>
                 </div>
 
