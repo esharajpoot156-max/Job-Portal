@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { ArrowLeft } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 import { useSocket } from "../utils/socketContext";
 
@@ -8,10 +9,18 @@ const Chat = () => {
     const { id: receiverId } = useParams();
     const { user } = useSelector((store) => store.auth);
     const socket = useSocket();
+    const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
     const [receiver, setReceiver] = useState(null);
     const bottomRef = useRef(null);
+
+    const formatTime = (timestamp) =>
+        new Date(timestamp).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        });
 
     const fetchMessages = async () => {
         try {
@@ -80,27 +89,43 @@ const Chat = () => {
         <div className="flex flex-col h-[calc(100vh-73px)] bg-white dark:bg-[#121214] dark:text-white">
             <div className="absolute top-20 left-10 w-72 h-72 bg-[#8B5CF6] opacity-20 rounded-full blur-3xl animate-blob"></div>
             <div className="absolute top-40 right-10 w-72 h-72 bg-[#ACFFD2] opacity-20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-            <div className="p-4 border-b dark:border-gray-700 font-semibold">
+            <div className="p-4 border-b dark:border-gray-700 font-semibold flex items-center gap-3">
+                <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="text-gray-500 dark:text-gray-400"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
                 {receiver?.fullname || "Chat"}
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {messages.map((msg) => (
-                    <div
-                        key={msg._id}
-                        className={`flex ${msg.sender === user._id ? "justify-end" : "justify-start"}`}
-                    >
+                {messages.map((msg) => {
+                    const isOwn = msg.sender === user._id;
+                    const senderName = isOwn ? user.fullname : receiver?.fullname || "User";
+
+                    return (
                         <div
-                            className={`max-w-xs px-4 py-2 rounded-lg ${
-                                msg.sender === user._id
-                                    ? "bg-[#8B5CF6] text-white"
-                                    : "bg-[#F4F4F5] dark:bg-gray-700 dark:text-white"
-                            }`}
+                            key={msg._id}
+                            className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}
                         >
-                            {msg.text}
+                            <span className="text-[10px] text-gray-400 px-1">{senderName}</span>
+                            <div
+                                className={`max-w-xs px-4 py-2 rounded-lg ${
+                                    isOwn
+                                        ? "bg-[#8B5CF6] text-white"
+                                        : "bg-[#F4F4F5] dark:bg-gray-700 dark:text-white"
+                                }`}
+                            >
+                                {msg.text}
+                            </div>
+                            <span className="text-[10px] text-gray-400 mt-1 px-1">
+                                {formatTime(msg.createdAt)}
+                            </span>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
                 <div ref={bottomRef} />
             </div>
 
