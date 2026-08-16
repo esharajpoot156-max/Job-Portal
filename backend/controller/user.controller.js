@@ -9,8 +9,11 @@ import getDataUri from "../utils/datauri.js";
 //Register
 export const register = async (req,res) =>{
     try{
-        const {fullname,email, phoneNumber, password, role} = req.body;
-        if(!fullname || !email || !phoneNumber || !password || !role)
+        const {fullname, companyName, email, password, role} = req.body;
+        const isEmployer = role === "recruiter";
+        const nameValue = isEmployer ? companyName : fullname;
+
+        if(!nameValue || !email || !password || !role)
         {
             return res.status(400).json({
                 message: "Something is missing ",
@@ -30,9 +33,9 @@ export const register = async (req,res) =>{
         const verificationTokenExpiry = Date.now() + 60 * 60 * 1000; // 1 hour
 
         await User.create({
-            fullname,
+            fullname: isEmployer ? undefined : fullname,
+            companyName: isEmployer ? companyName : undefined,
             email,
-            phoneNumber,
             password : hashedPassword,
             role,
             verificationToken,
@@ -186,7 +189,7 @@ export const login = async (req,res) =>{
 
         const userData = {
             _id : existingUser._id,
-            fullname:existingUser.fullname,
+            fullname: existingUser.role === "recruiter" ? existingUser.companyName : existingUser.fullname,
             email:existingUser.email,
             phoneNumber:existingUser.phoneNumber,
             role: existingUser.role,
@@ -312,7 +315,7 @@ export const resetPassword = async (req,res) =>{
 //update profile
 export const updateProfile = async (req,res) =>{
     try{
-        const {fullname,email, phoneNumber,bio,skills } = req.body;
+        const {fullname,email, phoneNumber,bio,skills,city,qualification,experience,jobPreference } = req.body;
         const file = req.file;
 
         let skillsArray;
@@ -329,11 +332,18 @@ export const updateProfile = async (req,res) =>{
                 success: false
             })
         }
-        if(fullname) user.fullname = fullname
+        if(fullname){
+            if(user.role === "recruiter") user.companyName = fullname;
+            else user.fullname = fullname;
+        }
         if(email) user.email= email
         if(phoneNumber) user.phoneNumber= phoneNumber
         if(bio) user.profile.bio = bio
         if(skills) user.profile.skills = skillsArray
+        if(city) user.profile.city = city
+        if(qualification) user.profile.qualification = qualification
+        if(experience) user.profile.experience = experience
+        if(jobPreference) user.profile.jobPreference = jobPreference
 
         // resume upload
         if(file){
@@ -348,7 +358,7 @@ export const updateProfile = async (req,res) =>{
         await user.save();
         user= {
             _id : user._id,
-            fullname:user.fullname,
+            fullname: user.role === "recruiter" ? user.companyName : user.fullname,
             email:user.email,
             phoneNumber:user.phoneNumber,
             role: user.role,
