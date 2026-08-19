@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const userSchema = new mongoose.Schema({
     fullname:{
         type: String,
@@ -14,7 +15,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
     },
     phoneNumber:{
-        type:Number
+        type:String
     },
     password:{
         type: String,
@@ -36,25 +37,30 @@ const userSchema = new mongoose.Schema({
         type: Date
     },
     resetPasswordToken:{
-    type: String},
-    resetPasswordExpiry:{
-    type: Date},
-    profile:{
-        bio: {type:String},
-        skills: [{type:String}],
-        city: {type:String},
-        qualification: {type:String},
-        experience: {type:String},
-        jobPreference: {type:String},
-        resume:{type:String},
-        resumeOriginalname: {type:String},
-        company:{type:mongoose.Schema.Types.ObjectId, ref: "Company"},
-        profilePhoto:{
-            type:String,
-            default:""
-        }
+        type: String
     },
-
+    resetPasswordExpiry:{
+        type: Date
+    },
+    savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+    profile:{
+        type:{
+            bio: {type:String},
+            skills: [{type:String}],
+            city: {type:String},
+            qualification: {type:String},
+            experience: {type:String},
+            jobPreference: {type:String},
+            resume:{type:String},
+            resumeOriginalname: {type:String},
+            company:{type:mongoose.Schema.Types.ObjectId, ref: "Company"},
+            profilePhoto:{
+                type:String,
+                default:""
+            }
+        },
+        default:{}
+    },
 }, {timestamps: true});
 
 export const user = mongoose.model("User", userSchema);
