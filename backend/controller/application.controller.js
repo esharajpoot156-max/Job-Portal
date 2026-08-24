@@ -69,7 +69,7 @@ export const getAppliedJobs = async(req,res) =>{
             })
         };
         return res.status(200).json({
-            application,
+            applications: application,
             success: true
         })
         
@@ -138,7 +138,7 @@ export const updateStatus = async (req,res) =>{
         application.status = status.toLowerCase();
         await application.save();
 
-        // in-app notification
+        //in-app notification
         await Notification.create({
             user: application.applicant._id,
             message: `Your application for "${application.job.title}" has been ${status.toLowerCase()}.`,
@@ -146,7 +146,7 @@ export const updateStatus = async (req,res) =>{
             relatedApplication: application._id
         });
 
-        // email notification
+        //email notification
         await sendStatusUpdateEmail(
             application.applicant.email,
             application.applicant.fullname,

@@ -29,13 +29,13 @@ const SplashScreen = ({ onFinish }) => {
             <div className="relative mb-8">
                 <div className="absolute -inset-3 rounded-3xl border-t-2 border-[#8B5CF6] animate-spin-slow"></div>
                 <div className="w-24 h-24 rounded-2xl bg-[#1a1a1d] flex items-center justify-center text-4xl font-bold text-[#8B5CF6]">
-                    JP
+                    JE
                 </div>
             </div>
 
             <h1 className="text-2xl font-bold mb-1">
                 <span className="text-white">Job</span>
-                <span className="text-[#8B5CF6]">Portal</span>
+                <span className="text-[#8B5CF6]">Ease</span>
             </h1>
             <p className="text-gray-400 text-sm tracking-widest uppercase mb-8">
                 Connecting Talent & Opportunity
