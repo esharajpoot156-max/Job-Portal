@@ -4,13 +4,11 @@ import Navbar from "./components/Navbar";
 import SplashScreen from "./components/SplashScreen";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import AdminLogin from "./pages/AdminLogin";
 import Home from "./pages/Home";
 import Jobs from "./pages/Jobs";
 import JobDetails from "./pages/JobDetails";
 import PostJob from "./pages/PostJob";
 import AdminJobs from "./pages/AdminJobs";
-import MyJobs from "./pages/MyJobs";
 import Applicants from "./pages/Applicants";
 import Conversations from "./pages/Conversations";
 import Chat from "./pages/Chat";
@@ -18,7 +16,8 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import CompanyRegister from "./pages/CompanyRegister";
 import AdminPendingJobs from "./pages/AdminPendingJobs";
-import SettingsPage from "./pages/SettingPage";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 
 function App() {
@@ -37,18 +36,16 @@ function App() {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/jobs" element={<AdminJobs />} />
         <Route path="/admin/jobs/post" element={<PostJob />} />
         <Route path="/admin/jobs/:id/applicants" element={<Applicants />} />
-        <Route path="/my-jobs" element={<MyJobs />} />
         <Route path="/messages" element={<Conversations />} />
         <Route path="/chat/:id" element={<Chat />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/company/register" element={<CompanyRegister />} />
         <Route path="/admin/pending-jobs" element={<AdminPendingJobs />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
       </div>
       <Footer/>

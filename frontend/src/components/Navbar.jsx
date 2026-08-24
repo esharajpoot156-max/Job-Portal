@@ -39,10 +39,20 @@ const RECRUITER_LINKS = [
   { to: "/messages", label: "Messages", icon: ICONS.messages },
 ];
 
+const ADMIN_LINKS = [
+  { to: "/admin", label: "Dashboard", icon: ICONS.home },
+  { to: "/admin/pending-jobs", label: "Pending Jobs", icon: ICONS.jobs },
+];
+
 const menuLinksFor = (isEmployer) => [
   { to: "/profile", label: isEmployer ? "Company Profile" : "Profile", icon: ICONS.profile },
   { to: "/settings", label: "Settings", icon: ICONS.settings },
   { to: "/language", label: "Language", icon: ICONS.language },
+  { to: "/help", label: "Help", icon: ICONS.help },
+];
+
+const ADMIN_MENU_LINKS = [
+  { to: "/settings", label: "Settings", icon: ICONS.settings },
   { to: "/help", label: "Help", icon: ICONS.help },
 ];
 
@@ -63,8 +73,9 @@ const Navbar = () => {
   const [confirmLogout, setConfirmLogout] = useState(false);
 
   const isEmployer = user?.role === "recruiter";
-  const navLinks = isEmployer ? RECRUITER_LINKS : STUDENT_LINKS;
-  const menuLinks = menuLinksFor(isEmployer);
+  const isAdmin = user?.role === "admin";
+  const navLinks = isAdmin ? ADMIN_LINKS : isEmployer ? RECRUITER_LINKS : STUDENT_LINKS;
+  const menuLinks = isAdmin ? ADMIN_MENU_LINKS : menuLinksFor(isEmployer);
 
   const logoutHandler = async () => {
     try {
