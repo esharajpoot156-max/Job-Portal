@@ -41,6 +41,7 @@ const RECRUITER_LINKS = [
 
 const ADMIN_LINKS = [
   { to: "/admin", label: "Dashboard", icon: ICONS.home },
+  { to: "/admin/jobs/post", label: "Post Job", icon: ICONS.postJob },
   { to: "/admin/pending-jobs", label: "Pending Jobs", icon: ICONS.jobs },
 ];
 
