@@ -47,6 +47,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/company/register" element={<CompanyRegister />} />
         <Route path="/admin/pending-jobs" element={<AdminPendingJobs />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
       </div>
