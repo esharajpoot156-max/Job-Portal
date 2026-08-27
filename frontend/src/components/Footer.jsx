@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import logo from "../assets/logo.png";
 
 const Footer = () => {
+    const { user } = useSelector((store) => store.auth);
+    const isAdmin = user?.role === "admin";
+
+    if (isAdmin) return null;
+
     return (
         <footer className="bg-[#F4F4F5] dark:bg-[#1a1a1d] border-t border-gray-200 dark:border-gray-700 mt-auto">
             <div className="max-w-6xl mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">

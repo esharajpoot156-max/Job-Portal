@@ -92,11 +92,49 @@ export const deleteUser = async (req, res) => {
 // get all companies
 export const getAllCompanies = async (req, res) => {
     try {
-        const companies = await Company.find().populate("userId", "companyName email").sort({ createdAt: -1 });
+        const companies = await Company.find()
+            .populate("userId", "companyName email")
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const companiesWithJobCount = await Promise.all(
+            companies.map(async (c) => ({
+                ...c,
+                jobCount: await Job.countDocuments({ company: c._id })
+            }))
+        );
 
         return res.status(200).json({
             success: true,
-            companies
+            companies: companiesWithJobCount
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+};
+
+// delete a company
+export const deleteCompany = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const company = await Company.findById(id);
+        if (!company) {
+            return res.status(404).json({
+                message: "Company not found",
+                success: false
+            });
+        }
+
+        await Company.findByIdAndDelete(id);
+
+        return res.status(200).json({
+            message: "Company deleted successfully",
+            success: true
         });
     } catch (error) {
         console.log(error);

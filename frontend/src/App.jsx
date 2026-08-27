@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Jobs from "./pages/Jobs";
+import MyJobs from "./pages/MyJobs";
 import JobDetails from "./pages/JobDetails";
 import PostJob from "./pages/PostJob";
 import AdminJobs from "./pages/AdminJobs";
@@ -18,6 +19,8 @@ import CompanyRegister from "./pages/CompanyRegister";
 import AdminPendingJobs from "./pages/AdminPendingJobs";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import SettingsPage from "./pages/SettingPage";
+import HelpPage from "./pages/Help";
 import Footer from "./components/Footer";
 
 function App() {
@@ -35,6 +38,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/jobs" element={<Jobs />} />
+        <Route path="/my-jobs" element={<MyJobs />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/jobs" element={<AdminJobs />} />
@@ -46,6 +50,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/company/register" element={<CompanyRegister />} />
         <Route path="/admin/pending-jobs" element={<AdminPendingJobs />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/help" element={<HelpPage />} />
       </Routes>
       </div>
       <Footer/>
