@@ -26,7 +26,7 @@ const AdminLogin = () => {
             const res = await axiosInstance.post("/user/login", { ...input, role: "admin" });
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
-                navigate("/admin");
+                navigate("/"); // redirect to home page instead of admin dashboard
             }
         } catch (error) {
             alert(error.response?.data?.message || "Something went wrong");
