@@ -17,8 +17,8 @@ const ICONS = {
   jobs: "M3 7h18M3 7v12a1 1 0 001 1h16a1 1 0 001-1V7M3 7l1.5-3h15L21 7M9 12h6",
   postJob: "M12 4v16m8-8H4",
   messages: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z",
-  bars: "M4 6h16M4 12h16M4 18h16",
   close: "M6 18L18 6M6 6l12 12",
+  bars: "M4 6h16M4 12h16M4 18h16",
   profile: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
   settings: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
   language: "M3 5h12M9 3v2m3.6 3C11.6 12 8 15 4 16m8-9c1.5 2.5 4 6 8 8M12 20l4-9 4 9m-7-2h6",
@@ -36,12 +36,12 @@ const STUDENT_LINKS = [
 const RECRUITER_LINKS = [
   { to: "/", label: "Home", icon: ICONS.home },
   { to: "/admin/jobs/post", label: "Post Job", icon: ICONS.postJob },
+  { to: "/admin/jobs", label: "My Posted Jobs", icon: ICONS.jobs },
   { to: "/messages", label: "Messages", icon: ICONS.messages },
 ];
 
 const ADMIN_LINKS = [
   { to: "/admin", label: "Dashboard", icon: ICONS.home },
-  { to: "/admin/jobs/post", label: "Post Job", icon: ICONS.postJob },
   { to: "/admin/pending-jobs", label: "Pending Jobs", icon: ICONS.jobs },
 ];
 
@@ -64,6 +64,16 @@ const LinkList = ({ links, size = "text-base", onClick }) =>
     </Link>
   ));
 
+// Avatar showing profile initial
+const Avatar = ({ user, size = "h-9 w-9", text = "text-sm" }) => {
+  const initial = (user?.fullname || user?.email || "?").trim().charAt(0).toUpperCase();
+  return (
+    <div className={`${size} ${text} rounded-full bg-[#8B5CF6] text-white flex items-center justify-center font-semibold shrink-0`}>
+      {initial}
+    </div>
+  );
+};
+
 const Navbar = () => {
   const { user } = useSelector((s) => s.auth);
   const dispatch = useDispatch();
@@ -72,6 +82,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const isEmployer = user?.role === "recruiter";
   const isAdmin = user?.role === "admin";
@@ -80,12 +91,14 @@ const Navbar = () => {
 
   const logoutHandler = async () => {
     try {
+      setLoggingOut(true);
       await axiosInstance.get("/user/logout");
       dispatch(logoutUser());
       navigate("/login");
     } catch (e) {
       console.log(e);
     } finally {
+      setLoggingOut(false);
       setConfirmLogout(false);
       setDropdownOpen(false);
       setMenuOpen(false);
@@ -113,12 +126,23 @@ const Navbar = () => {
 
       {user && (
         <div className="relative ml-6 hidden lg:block">
-          <button onClick={() => setDropdownOpen(!dropdownOpen)} aria-label="Menu" className="h-10 w-10 flex items-center justify-center">
-            <Icon d={ICONS.bars} className="h-6 w-6" />
+          <button onClick={() => setDropdownOpen(!dropdownOpen)} aria-label="Profile menu">
+            <Avatar user={user} />
           </button>
+
           {dropdownOpen && (
-            <div className="absolute right-0 top-12 w-52 flex flex-col gap-1 py-3 rounded-lg shadow-lg bg-white dark:bg-[#242426] border border-gray-200 dark:border-gray-700 z-50">
-              <LinkList links={menuLinks} size="text-sm px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setDropdownOpen(false)} />
+            <div className="absolute right-0 top-12 w-60 flex flex-col py-2 rounded-lg shadow-lg bg-white dark:bg-[#242426] border border-gray-200 dark:border-gray-700 z-50">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <Avatar user={user} size="h-10 w-10" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate">{user?.fullname}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1 py-2">
+                <LinkList links={menuLinks} size="text-sm px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setDropdownOpen(false)} />
+              </div>
               <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-2 text-sm px-4 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 text-left">
                 <Icon d={ICONS.logout} /> Logout
               </button>
@@ -127,7 +151,8 @@ const Navbar = () => {
         </div>
       )}
 
-      <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu" className="lg:hidden h-10 w-10 ml-auto">
+      <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu" className="lg:hidden h-10 w-10 ml-auto flex items-center gap-2">
+        {user && <Avatar user={user} size="h-8 w-8" text="text-xs" />}
         <Icon d={menuOpen ? ICONS.close : ICONS.bars} className="h-6 w-6" />
       </button>
 
@@ -157,12 +182,37 @@ const Navbar = () => {
       )}
 
       {confirmLogout && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-[#242426] rounded-lg p-6 w-72 text-center shadow-xl">
-            <p className="text-sm mb-5">Are you sure you want to logout?</p>
-            <div className="flex justify-center gap-3">
-              <button onClick={() => setConfirmLogout(false)} className="px-4 py-1.5 rounded border border-gray-400 text-sm">Cancel</button>
-              <button onClick={logoutHandler} className="px-4 py-1.5 rounded bg-red-500 text-white text-sm">Yes</button>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white dark:bg-[#242426] rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl border border-gray-200 dark:border-gray-700 animate-[fadeIn_0.15s_ease-out]">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-red-100 dark:bg-red-950/60 flex items-center justify-center">
+              <Icon d={ICONS.logout} className="h-6 w-6 text-red-500" />
+            </div>
+            <h2 className="text-lg font-semibold mb-1">Log out?</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              You'll need to sign in again to access your account.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmLogout(false)}
+                disabled={loggingOut}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={logoutHandler}
+                disabled={loggingOut}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {loggingOut ? (
+                  <>
+                    <span className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    Logging out
+                  </>
+                ) : (
+                  "Log out"
+                )}
+              </button>
             </div>
           </div>
         </div>
