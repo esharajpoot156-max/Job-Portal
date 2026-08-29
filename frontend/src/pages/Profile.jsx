@@ -124,17 +124,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-                <div>
-                    <label className={labelClass}>Qualification *</label>
-                    <input
-                        type="text"
-                        name="qualification"
-                        required
-                        value={input.qualification}
-                        onChange={changeHandler}
-                        className={plainInputClass}
-                    />
-                </div>
 
                 <div>
                     <label className={labelClass}>Bio</label>
@@ -149,6 +138,17 @@ const Profile = () => {
 
                 {user?.role === "student" && (
                     <>
+                            <div>
+            <label className={labelClass}>Qualification *</label>
+            <input
+                type="text"
+                name="qualification"
+                required
+                value={input.qualification}
+                onChange={changeHandler}
+                className={plainInputClass}
+            />
+        </div>
                         <div>
                             <label className={labelClass}>Skills *</label>
                             <input
