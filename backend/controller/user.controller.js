@@ -325,7 +325,7 @@ export const resetPassword = async (req,res) =>{
 //update profile 
 export const updateProfile = async (req,res) =>{ 
     try{ 
-        const {fullname,email, phoneNumber,bio,skills,city,qualification,experience,jobPreference } = req.body; 
+        const {fullname,email, phoneNumber,bio,skills,city,qualification,experience,jobPreference,salaryExpectation } = req.body; 
         const file = req.file; 
  
         let skillsArray; 
@@ -359,6 +359,7 @@ export const updateProfile = async (req,res) =>{
         if(qualification !== undefined) user.profile.qualification = qualification 
         if(experience !== undefined) user.profile.experience = experience 
         if(jobPreference !== undefined) user.profile.jobPreference = jobPreference 
+        if(salaryExpectation !== undefined) user.profile.salaryExpectation = salaryExpectation 
  
         // resume upload 
         if(file){ 

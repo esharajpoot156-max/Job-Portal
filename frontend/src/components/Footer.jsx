@@ -33,10 +33,6 @@ const Footer = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-400">support@jobportal.com</p>
                 </div>
             </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-700 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
-                © {new Date().getFullYear()} Job Portal. All rights reserved.
-            </div>
         </footer>
     );
 };

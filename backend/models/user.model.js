@@ -51,6 +51,7 @@ const userSchema = new mongoose.Schema({
             qualification: {type:String},
             experience: {type:String},
             jobPreference: {type:String},
+            salaryExpectation: {type:String},
             resume:{type:String},
             resumeOriginalname: {type:String},
             company:{type:mongoose.Schema.Types.ObjectId, ref: "Company"},

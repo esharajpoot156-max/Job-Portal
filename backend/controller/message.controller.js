@@ -152,3 +152,54 @@ export const markAsSeen = async (req, res) => {
         });
     }
 }
+
+// deleting a message
+
+export const deleteMessage = async (req, res) => {
+    try{
+        const userId = req.id;
+        const { messageId } = req.params;
+
+        const message = await Message.findById(messageId);
+
+        if(!message){
+            return res.status(404).json({
+                message: "Message not found",
+                success: false
+            });
+        }
+
+        if(message.sender.toString() !== userId){
+            return res.status(403).json({
+                message: "You can only delete your own messages",
+                success: false
+            });
+        }
+
+        const conversation = await Conversation.findById(message.conversationId);
+        const receiverId = conversation?.participants.find(
+            (p) => p.toString() !== userId
+        );
+
+        await Message.findByIdAndDelete(messageId);
+
+        if(receiverId){
+            const receiverSocketId = getReceiverSocketId(receiverId.toString());
+            if(receiverSocketId){
+                io.to(receiverSocketId).emit("messageDeleted", messageId);
+            }
+        }
+
+        return res.status(200).json({
+            message: "Message deleted",
+            success: true
+        });
+
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+}
