@@ -1,3 +1,4 @@
+import { user as User } from "../models/user.model.js";
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
 import { getReceiverSocketId, io } from "../utils/socket.js";
@@ -11,6 +12,32 @@ export const sendMessage = async (req, res) => {
         if(!text){
             return res.status(400).json({
                 message: "Message text is required",
+                success: false
+            });
+        }
+
+        const sender = await User.findById(senderId).select("role");
+        const receiver = await User.findById(receiverId).select("privacy");
+
+        if(!receiver){
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        const permission = receiver.privacy?.messagePermission || "everyone";
+
+        if(permission === "none"){
+            return res.status(403).json({
+                message: "This user isn't accepting messages right now.",
+                success: false
+            });
+        }
+
+        if(permission === "recruiters" && sender?.role !== "recruiter"){
+            return res.status(403).json({
+                message: "This user only accepts messages from recruiters.",
                 success: false
             });
         }
