@@ -203,7 +203,9 @@ export const login = async (req,res) =>{
             phoneNumber:existingUser.phoneNumber, 
             role: existingUser.role, 
             profile:existingUser.profile, 
-            savedJobs: existingUser.savedJobs 
+            savedJobs: existingUser.savedJobs, 
+            privacy: existingUser.privacy, 
+            notifications: existingUser.notifications 
         } 
  
         return res.status(200).cookie("token",token, {maxAge: 1*24*60*60*1000, httpOnly: true, sameSite: 'strict'}) .json ({ 
@@ -379,7 +381,9 @@ export const updateProfile = async (req,res) =>{
             phoneNumber:user.phoneNumber, 
             role: user.role, 
             profile:user.profile, 
-            savedJobs: user.savedJobs 
+            savedJobs: user.savedJobs, 
+            privacy: user.privacy, 
+            notifications: user.notifications 
         } 
         return res.status(200).json({ 
             message:"profile updated successfully.", 
@@ -465,4 +469,119 @@ export const getSavedJobs = async (req,res) =>{
             success: false 
         }); 
     } 
+}
+
+//change password
+export const changePassword = async (req,res) =>{
+    try{
+        const { currentPassword, newPassword } = req.body;
+        if(!currentPassword || !newPassword) return res.status(400).json({ message: "Both current and new password are required", success: false });
+
+        const foundUser = await User.findById(req.id);
+        if(!foundUser) return res.status(404).json({ message: "User not found", success: false });
+
+        const isMatch = await bcrypt.compare(currentPassword, foundUser.password);
+        if(!isMatch) return res.status(400).json({ message: "Current password is incorrect", success: false });
+
+        foundUser.password = await bcrypt.hash(newPassword, 10);
+        await foundUser.save();
+
+        return res.status(200).json({ message: "Password changed successfully", success: true });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ message: "Server error", success: false });
+    }
+}
+
+//update privacy settings
+export const updatePrivacy = async (req,res) =>{
+    try{
+        const { publicProfile, hideSalary, messagePermission } = req.body;
+
+        const foundUser = await User.findById(req.id);
+        if(!foundUser) return res.status(404).json({ message: "User not found", success: false });
+
+        foundUser.privacy = { ...foundUser.privacy?.toObject?.() ?? foundUser.privacy, ...(publicProfile !== undefined && {publicProfile}), ...(hideSalary !== undefined && {hideSalary}), ...(messagePermission && {messagePermission}) };
+        await foundUser.save();
+
+        return res.status(200).json({ message: "Privacy settings updated", privacy: foundUser.privacy, success: true });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ message: "Server error", success: false });
+    }
+}
+
+//update notification preferences
+export const updateNotificationPreferences = async (req,res) =>{
+    try{
+        const { emailUpdates, jobAlerts } = req.body;
+
+        const foundUser = await User.findById(req.id);
+        if(!foundUser) return res.status(404).json({ message: "User not found", success: false });
+
+        foundUser.notifications = { ...foundUser.notifications?.toObject?.() ?? foundUser.notifications, ...(emailUpdates !== undefined && {emailUpdates}), ...(jobAlerts !== undefined && {jobAlerts}) };
+        await foundUser.save();
+
+        return res.status(200).json({ message: "Notification preferences updated", notifications: foundUser.notifications, success: true });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ message: "Server error", success: false });
+    }
+}
+
+//get blocked users
+export const getBlockedUsers = async (req,res) =>{
+    try{
+        const foundUser = await User.findById(req.id).populate("blockedUsers", "fullname companyName email role");
+        if(!foundUser) return res.status(404).json({ message: "User not found", success: false });
+
+        return res.status(200).json({ blockedUsers: foundUser.blockedUsers, success: true });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ message: "Server error", success: false });
+    }
+}
+
+//block a user
+export const blockUser = async (req,res) =>{
+    try{
+        const targetId = req.params.id;
+        if(targetId === req.id) return res.status(400).json({ message: "You can't block yourself", success: false });
+
+        const foundUser = await User.findByIdAndUpdate(req.id, { $addToSet: { blockedUsers: targetId } }, { new: true });
+        if(!foundUser) return res.status(404).json({ message: "User not found", success: false });
+
+        return res.status(200).json({ message: "User blocked", success: true });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ message: "Server error", success: false });
+    }
+}
+
+//unblock a user
+export const unblockUser = async (req,res) =>{
+    try{
+        const foundUser = await User.findByIdAndUpdate(req.id, { $pull: { blockedUsers: req.params.id } }, { new: true });
+        if(!foundUser) return res.status(404).json({ message: "User not found", success: false });
+
+        return res.status(200).json({ message: "User unblocked", success: true });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ message: "Server error", success: false });
+    }
+}
+
+//delete account
+export const deleteAccount = async (req,res) =>{
+    try{
+        const foundUser = await User.findByIdAndDelete(req.id);
+        if(!foundUser) return res.status(404).json({ message: "User not found", success: false });
+
+        await User.updateMany({ blockedUsers: foundUser._id }, { $pull: { blockedUsers: foundUser._id } });
+
+        return res.status(200).cookie("token","",{maxAge:0}).json({ message: "Account deleted successfully", success: true });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ message: "Server error", success: false });
+    }
 }
