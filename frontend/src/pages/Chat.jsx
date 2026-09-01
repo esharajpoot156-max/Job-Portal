@@ -1,19 +1,23 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { ArrowLeft, Trash2, ShieldOff, Shield } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 import { useSocket } from "../utils/socketContext";
+import { setUser } from "../redux/authSlice";
 
 const Chat = () => {
     const { id: receiverId } = useParams();
     const { user } = useSelector((store) => store.auth);
+    const dispatch = useDispatch();
     const socket = useSocket();
     const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
     const [receiver, setReceiver] = useState(null);
     const bottomRef = useRef(null);
+
+    const isBlocked = user?.blockedUsers?.includes(receiverId);
 
     const formatTime = (t) => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
 
@@ -48,7 +52,7 @@ const Chat = () => {
         try {
             const res = await axiosInstance.post(`/message/send/${receiverId}`, { text });
             if (res.data.success) { setMessages(prev => [...prev, res.data.newMessage]); setText(""); }
-        } catch (e) { console.log(e); }
+        } catch (e) { alert(e.response?.data?.message || "Could not send message"); }
     };
 
     const deleteHandler = async (id) => {
@@ -59,11 +63,51 @@ const Chat = () => {
         } catch (e) { alert(e.response?.data?.message || "Could not delete message"); }
     };
 
+    const blockHandler = async () => {
+        if (!window.confirm(`Block ${receiver?.fullname || "this user"}? They won't be able to message you anymore.`)) return;
+        try {
+            const res = await axiosInstance.post(`/user/block/${receiverId}`);
+            if (res.data.success) {
+                dispatch(setUser({ ...user, blockedUsers: [...(user.blockedUsers || []), receiverId] }));
+            }
+        } catch (e) { alert(e.response?.data?.message || "Could not block user"); }
+    };
+
+    const unblockHandler = async () => {
+        try {
+            const res = await axiosInstance.post(`/user/unblock/${receiverId}`);
+            if (res.data.success) {
+                dispatch(setUser({ ...user, blockedUsers: (user.blockedUsers || []).filter((id) => id !== receiverId) }));
+            }
+        } catch (e) { alert(e.response?.data?.message || "Could not unblock user"); }
+    };
+
     return (
         <div className="flex flex-col h-[calc(100vh-73px)] bg-white dark:bg-[#121214] dark:text-white">
-            <div className="p-4 border-b dark:border-gray-700 font-semibold flex items-center gap-3">
-                <button onClick={() => navigate(-1)} className="text-gray-500 dark:text-gray-400"><ArrowLeft className="w-5 h-5" /></button>
-                {receiver?.fullname || "Chat"}
+            <div className="p-4 border-b dark:border-gray-700 font-semibold flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <button onClick={() => navigate(-1)} className="text-gray-500 dark:text-gray-400"><ArrowLeft className="w-5 h-5" /></button>
+                    {receiver?.fullname || "Chat"}
+                </div>
+                {isBlocked ? (
+                    <button
+                        onClick={unblockHandler}
+                        title="Unblock user"
+                        className="flex items-center gap-1.5 text-red-500 hover:text-green-500 bg-red-500/10 hover:bg-green-500/10 px-2.5 py-1.5 rounded-lg transition-all duration-150 active:scale-95"
+                    >
+                        <Shield className="w-4 h-4" />
+                        <span className="text-xs font-medium hidden sm:inline">Blocked</span>
+                    </button>
+                ) : (
+                    <button
+                        onClick={blockHandler}
+                        title="Block user"
+                        className="flex items-center gap-1.5 text-gray-400 hover:text-red-500 bg-transparent hover:bg-red-500/10 px-2.5 py-1.5 rounded-lg transition-all duration-150 active:scale-95"
+                    >
+                        <ShieldOff className="w-4 h-4" />
+                        <span className="text-xs font-medium hidden sm:inline">Block</span>
+                    </button>
+                )}
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -89,10 +133,17 @@ const Chat = () => {
                 <div ref={bottomRef} />
             </div>
 
-            <form onSubmit={sendHandler} className="p-4 border-t dark:border-gray-700 flex gap-3">
-                <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message..." className="flex-1 border p-2 rounded dark:bg-[#1a1a1d] dark:border-gray-700" />
-                <button type="submit" className="bg-[#8B5CF6] text-white px-6 py-2 rounded">Send</button>
-            </form>
+            {isBlocked ? (
+                <div className="p-4 border-t dark:border-gray-700 text-center text-sm text-gray-500 dark:text-gray-400">
+                    You've blocked this user.{" "}
+                    <button onClick={unblockHandler} className="text-[#8B5CF6] font-medium">Unblock</button> to send a message.
+                </div>
+            ) : (
+                <form onSubmit={sendHandler} className="p-4 border-t dark:border-gray-700 flex gap-3">
+                    <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message..." className="flex-1 border p-2 rounded dark:bg-[#1a1a1d] dark:border-gray-700" />
+                    <button type="submit" className="bg-[#8B5CF6] text-white px-6 py-2 rounded">Send</button>
+                </form>
+            )}
         </div>
     );
 };
