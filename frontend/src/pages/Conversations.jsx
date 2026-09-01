@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { ShieldOff } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 
 const Conversations = () => {
@@ -32,19 +33,26 @@ const Conversations = () => {
                 ) : (
                     conversations.map((conv) => {
                         const otherUser = conv.participants.find((p) => p._id !== user._id);
+                        const isBlocked = user?.blockedUsers?.includes(otherUser?._id);
                         return (
                             <Link
                                 key={conv._id}
                                 to={`/chat/${otherUser?._id}`}
-                                className="flex items-center gap-4 border p-4 rounded dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#1a1a1d]"
+                                className={`flex items-center gap-4 border p-4 rounded dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#1a1a1d] ${isBlocked ? "opacity-60" : ""}`}
                             >
-                                <div className="w-10 h-10 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center">
+                                <div className={`w-10 h-10 rounded-full text-white flex items-center justify-center ${isBlocked ? "bg-gray-400 dark:bg-gray-600" : "bg-[#8B5CF6]"}`}>
                                     {otherUser?.fullname?.[0]}
                                 </div>
-                                <div>
+                                <div className="flex-1">
                                     <h3 className="font-semibold">{otherUser?.fullname}</h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">{otherUser?.role}</p>
                                 </div>
+                                {isBlocked && (
+                                    <span className="flex items-center gap-1 text-xs font-medium text-red-500 bg-red-500/10 px-2.5 py-1 rounded-full">
+                                        <ShieldOff className="w-3 h-3" />
+                                        Blocked
+                                    </span>
+                                )}
                             </Link>
                         );
                     })
