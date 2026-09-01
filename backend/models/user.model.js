@@ -43,6 +43,23 @@ const userSchema = new mongoose.Schema({
         type: Date
     },
     savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+
+    // Settings page
+    privacy: {
+        publicProfile: { type: Boolean, default: true },
+        hideSalary: { type: Boolean, default: false },
+        messagePermission: {
+            type: String,
+            enum: ["everyone", "recruiters", "none"],
+            default: "everyone"
+        }
+    },
+    notifications: {
+        emailUpdates: { type: Boolean, default: true },
+        jobAlerts: { type: Boolean, default: true }
+    },
+    blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
     profile:{
         type:{
             bio: {type:String},
