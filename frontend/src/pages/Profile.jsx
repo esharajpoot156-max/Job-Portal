@@ -17,11 +17,14 @@ const Profile = () => {
         skills: user?.profile?.skills?.join(", ") || "",
         experience: user?.profile?.experience || "",
         jobPreference: user?.profile?.jobPreference || "",
+        salaryExpectation: user?.profile?.salaryExpectation || "",
         bio: user?.profile?.bio || ""
     });
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [profileCreated, setProfileCreated] = useState(!!user?.profile?.bio);
+    const [profileCreated, setProfileCreated] = useState(
+        !!(user?.profile?.bio || user?.profile?.qualification || user?.profile?.skills?.length || user?.profile?.resume)
+    );
 
     const changeHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
@@ -124,17 +127,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-                <div>
-                    <label className={labelClass}>Qualification *</label>
-                    <input
-                        type="text"
-                        name="qualification"
-                        required
-                        value={input.qualification}
-                        onChange={changeHandler}
-                        className={plainInputClass}
-                    />
-                </div>
 
                 <div>
                     <label className={labelClass}>Bio</label>
@@ -149,6 +141,17 @@ const Profile = () => {
 
                 {user?.role === "student" && (
                     <>
+                            <div>
+            <label className={labelClass}>Qualification *</label>
+            <input
+                type="text"
+                name="qualification"
+                required
+                value={input.qualification}
+                onChange={changeHandler}
+                className={plainInputClass}
+            />
+        </div>
                         <div>
                             <label className={labelClass}>Skills *</label>
                             <input
@@ -181,6 +184,18 @@ const Profile = () => {
                                 name="jobPreference"
                                 placeholder="e.g. Remote, Full-time"
                                 value={input.jobPreference}
+                                onChange={changeHandler}
+                                className={plainInputClass}
+                            />
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Salary Expectation (optional)</label>
+                            <input
+                                type="text"
+                                name="salaryExpectation"
+                                placeholder="e.g. 50,000 - 70,000 / month"
+                                value={input.salaryExpectation}
                                 onChange={changeHandler}
                                 className={plainInputClass}
                             />

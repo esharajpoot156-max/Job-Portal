@@ -1,3 +1,4 @@
+import { user as User } from "../models/user.model.js";
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
 import { getReceiverSocketId, io } from "../utils/socket.js";
@@ -11,6 +12,32 @@ export const sendMessage = async (req, res) => {
         if(!text){
             return res.status(400).json({
                 message: "Message text is required",
+                success: false
+            });
+        }
+
+        const sender = await User.findById(senderId).select("role");
+        const receiver = await User.findById(receiverId).select("privacy");
+
+        if(!receiver){
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        const permission = receiver.privacy?.messagePermission || "everyone";
+
+        if(permission === "none"){
+            return res.status(403).json({
+                message: "This user isn't accepting messages right now.",
+                success: false
+            });
+        }
+
+        if(permission === "recruiters" && sender?.role !== "recruiter"){
+            return res.status(403).json({
+                message: "This user only accepts messages from recruiters.",
                 success: false
             });
         }
@@ -141,6 +168,57 @@ export const markAsSeen = async (req, res) => {
 
         return res.status(200).json({
             message: "Messages marked as seen",
+            success: true
+        });
+
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+}
+
+// deleting a message
+
+export const deleteMessage = async (req, res) => {
+    try{
+        const userId = req.id;
+        const { messageId } = req.params;
+
+        const message = await Message.findById(messageId);
+
+        if(!message){
+            return res.status(404).json({
+                message: "Message not found",
+                success: false
+            });
+        }
+
+        if(message.sender.toString() !== userId){
+            return res.status(403).json({
+                message: "You can only delete your own messages",
+                success: false
+            });
+        }
+
+        const conversation = await Conversation.findById(message.conversationId);
+        const receiverId = conversation?.participants.find(
+            (p) => p.toString() !== userId
+        );
+
+        await Message.findByIdAndDelete(messageId);
+
+        if(receiverId){
+            const receiverSocketId = getReceiverSocketId(receiverId.toString());
+            if(receiverSocketId){
+                io.to(receiverSocketId).emit("messageDeleted", messageId);
+            }
+        }
+
+        return res.status(200).json({
+            message: "Message deleted",
             success: true
         });
 
