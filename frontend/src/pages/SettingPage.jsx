@@ -58,6 +58,7 @@ const SettingsPage = () => {
     const { darkMode, setDarkMode } = useTheme();
     const { user } = useSelector((store) => store.auth);
     const dispatch = useDispatch();
+    const isRecruiter = user?.role === "recruiter";
     const [tab, setTab] = useState("account");
     const [saving, setSaving] = useState(false);
     const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
@@ -85,12 +86,14 @@ const SettingsPage = () => {
     };
 
     const savePrivacy = async () => {
-        const res = await run(() => axiosInstance.post("/user/update-privacy", privacy), "Privacy settings saved");
+        const payload = isRecruiter ? { messagePermission: privacy.messagePermission } : privacy;
+        const res = await run(() => axiosInstance.post("/user/update-privacy", payload), "Privacy settings saved");
         if (res?.data.success) dispatch(setUser({ ...user, privacy: res.data.privacy }));
     };
 
     const saveNotifications = async () => {
-        const res = await run(() => axiosInstance.post("/user/update-notifications", notif), "Notification settings saved");
+        const payload = isRecruiter ? { emailUpdates: notif.emailUpdates } : notif;
+        const res = await run(() => axiosInstance.post("/user/update-notifications", payload), "Notification settings saved");
         if (res?.data.success) dispatch(setUser({ ...user, notifications: res.data.notifications }));
     };
 
@@ -149,13 +152,17 @@ const SettingsPage = () => {
 
                         {tab === "privacy" && (
                             <Section title="Privacy">
-                                <Toggle label="Public Profile" desc="Recruiters can view your profile" checked={privacy.publicProfile} onChange={(v) => setPrivacy({ ...privacy, publicProfile: v })} />
-                                <Toggle label="Hide Salary Expectations" desc="Recruiters won't see your expected salary" checked={privacy.hideSalary} onChange={(v) => setPrivacy({ ...privacy, hideSalary: v })} />
+                                {!isRecruiter && (
+                                    <>
+                                        <Toggle label="Public Profile" desc="Recruiters can view your profile" checked={privacy.publicProfile} onChange={(v) => setPrivacy({ ...privacy, publicProfile: v })} />
+                                        <Toggle label="Hide Salary Expectations" desc="Recruiters won't see your expected salary" checked={privacy.hideSalary} onChange={(v) => setPrivacy({ ...privacy, hideSalary: v })} />
+                                    </>
+                                )}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Who can message me</label>
                                     <select value={privacy.messagePermission} onChange={(e) => setPrivacy({ ...privacy, messagePermission: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:border-gray-700 bg-white dark:bg-[#121214] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]">
                                         <option value="everyone">Everyone</option>
-                                        <option value="recruiters">Recruiters Only</option>
+                                        {!isRecruiter && <option value="recruiters">Recruiters Only</option>}
                                         <option value="none">No One</option>
                                     </select>
                                 </div>
@@ -166,7 +173,9 @@ const SettingsPage = () => {
                         {tab === "notifications" && (
                             <Section title="Notification Preferences">
                                 <Toggle label="Email Updates" desc="Get emailed about important account activity" checked={notif.emailUpdates} onChange={(v) => setNotif({ ...notif, emailUpdates: v })} />
-                                <Toggle label="Job Alerts" desc="Get notified about new jobs matching your profile" checked={notif.jobAlerts} onChange={(v) => setNotif({ ...notif, jobAlerts: v })} />
+                                {!isRecruiter && (
+                                    <Toggle label="Job Alerts" desc="Get notified about new jobs matching your profile" checked={notif.jobAlerts} onChange={(v) => setNotif({ ...notif, jobAlerts: v })} />
+                                )}
                                 <button onClick={saveNotifications} disabled={saving} className="bg-[#8B5CF6] text-white px-6 py-2.5 rounded-xl font-medium disabled:opacity-50">{saving ? "Saving..." : "Save Changes"}</button>
                             </Section>
                         )}

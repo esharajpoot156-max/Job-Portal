@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Bookmark, Briefcase, MapPin, Clock, ArrowRight } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 
@@ -10,7 +10,9 @@ const statusStyles = {
 };
 
 const MyJobs = () => {
-    const [tab, setTab] = useState("saved");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTab = searchParams.get("tab") === "applied" ? "applied" : "saved";
+    const [tab, setTab] = useState(initialTab);
     const [savedJobs, setSavedJobs] = useState([]);
     const [appliedJobs, setAppliedJobs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,12 +35,17 @@ const MyJobs = () => {
         fetchData();
     }, []);
 
+    const handleTabChange = (nextTab) => {
+        setTab(nextTab);
+        setSearchParams(nextTab === "applied" ? { tab: "applied" } : {});
+    };
+
     const applications = tab === "applied" ? appliedJobs : null;
     const jobs = tab === "saved" ? savedJobs : appliedJobs.map((app) => app.job);
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#121214]">
-            {/* Header */}
+          
             <div className="relative overflow-hidden bg-gradient-to-r from-[#8B5CF6]/10 via-[#8B5CF6]/5 to-[#ACFFD2]/10 dark:from-[#8B5CF6]/10 dark:via-[#1a1a1d] dark:to-[#ACFFD2]/5 border-b dark:border-gray-800">
                 <div className="absolute -top-10 -right-10 w-56 h-56 bg-[#8B5CF6]/10 rounded-full blur-3xl" />
                 <div className="max-w-4xl mx-auto px-8 py-12 relative">
@@ -47,7 +54,7 @@ const MyJobs = () => {
 
                     <div className="inline-flex bg-white/70 dark:bg-[#1a1a1d]/70 backdrop-blur border dark:border-gray-700 rounded-2xl p-1 gap-1">
                         <button
-                            onClick={() => setTab("saved")}
+                            onClick={() => handleTabChange("saved")}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                                 tab === "saved"
                                     ? "bg-[#8B5CF6] text-white shadow-lg shadow-[#8B5CF6]/30"
@@ -61,7 +68,7 @@ const MyJobs = () => {
                             </span>
                         </button>
                         <button
-                            onClick={() => setTab("applied")}
+                            onClick={() => handleTabChange("applied")}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                                 tab === "applied"
                                     ? "bg-[#8B5CF6] text-white shadow-lg shadow-[#8B5CF6]/30"
@@ -78,7 +85,6 @@ const MyJobs = () => {
                 </div>
             </div>
 
-            {/* Content */}
             <div className="max-w-4xl mx-auto px-8 py-10">
                 {loading ? (
                     <div className="space-y-4">
