@@ -12,12 +12,20 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ["application_status", "general"],
+        enum: ["application_status", "application_received", "job_status", "job_alert", "message", "general"],
         default: "general"
     },
     relatedApplication: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Application"
+    },
+    relatedJob: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job"
+    },
+    relatedUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     },
     isRead: {
         type: Boolean,
