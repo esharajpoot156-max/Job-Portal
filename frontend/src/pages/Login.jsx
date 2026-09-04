@@ -124,7 +124,7 @@ const Login = () => {
                             className="w-full border p-3 rounded-xl mb-4 dark:bg-[#1a1a1d] dark:border-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] transition-colors"
                         />
 
-                        <div className="relative mb-5">
+                        <div className="relative mb-2">
                             <input
                                 type={showPassword ? "text" : "password"} name="password"
                                 placeholder="Password"
@@ -138,6 +138,10 @@ const Login = () => {
                             >
                                 {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                             </button>
+                        </div>
+
+                        <div className="text-right mb-5">
+                            <Link to="/forgot-password" className="text-sm text-[#8B5CF6]">Forgot Password?</Link>
                         </div>
                     </div>
 
