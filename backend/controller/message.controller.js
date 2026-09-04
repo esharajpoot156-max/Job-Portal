@@ -1,6 +1,7 @@
 import { user as User } from "../models/user.model.js";
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
+import { Notification } from "../models/notification.model.js";
 import { getReceiverSocketId, io } from "../utils/socket.js";
 
 export const sendMessage = async (req, res) => {
@@ -16,7 +17,7 @@ export const sendMessage = async (req, res) => {
             });
         }
 
-        const sender = await User.findById(senderId).select("role");
+        const sender = await User.findById(senderId).select("role fullname");
         const receiver = await User.findById(receiverId).select("privacy");
 
         if(!receiver){
@@ -56,6 +57,14 @@ export const sendMessage = async (req, res) => {
             conversationId: conversation._id,
             sender: senderId,
             text
+        });
+
+        // notification for receiver
+        await Notification.create({
+            user: receiverId,
+            message: `New message from ${sender?.fullname || "someone"}`,
+            type: "message",
+            relatedUser: senderId
         });
 
         // real-time emit
@@ -137,7 +146,6 @@ export const getConversations = async (req, res) => {
         });
     }
 }
-// seen status
 
 export const markAsSeen = async (req, res) => {
     try{
@@ -155,7 +163,6 @@ export const markAsSeen = async (req, res) => {
             });
         }
 
-        // sirf wo messages jo doosre user ne bheje the aur abhi unseen hain
         await Message.updateMany(
             { conversationId: conversation._id, sender: otherUserId, seen: false },
             { $set: { seen: true } }
@@ -179,9 +186,7 @@ export const markAsSeen = async (req, res) => {
         });
     }
 }
-
 // deleting a message
-
 export const deleteMessage = async (req, res) => {
     try{
         const userId = req.id;

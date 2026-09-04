@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../utils/axiosInstance";
@@ -24,6 +24,7 @@ const ICONS = {
   language: "M3 5h12M9 3v2m3.6 3C11.6 12 8 15 4 16m8-9c1.5 2.5 4 6 8 8M12 20l4-9 4 9m-7-2h6",
   help: "M9.09 9a3 3 0 115.83 1c0 2-3 2-3 4M12 17h.01M12 21a9 9 0 100-18 9 9 0 000 18z",
   logout: "M17 16l4-4m0 0l-4-4m4 4H7m6 5v1a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h5a2 2 0 012 2v1",
+  bell: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
 };
 
 const STUDENT_LINKS = [
@@ -52,10 +53,7 @@ const menuLinksFor = (isEmployer) => [
   { to: "/help", label: "Help", icon: ICONS.help },
 ];
 
-const ADMIN_MENU_LINKS = [
-  { to: "/settings", label: "Settings", icon: ICONS.settings },
-  { to: "/help", label: "Help", icon: ICONS.help },
-];
+const ADMIN_MENU_LINKS = [];
 
 const LinkList = ({ links, size = "text-base", onClick }) =>
   links.map((l) => (
@@ -74,6 +72,18 @@ const Avatar = ({ user, size = "h-9 w-9", text = "text-sm" }) => {
   );
 };
 
+// Bell icon for notification
+const NotificationBell = ({ unreadCount, size = "h-6 w-6" }) => (
+  <Link to="/notifications" aria-label="Notifications" className="relative inline-flex items-center">
+    <Icon d={ICONS.bell} className={size} />
+    {unreadCount > 0 && (
+      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center">
+        {unreadCount > 9 ? "9+" : unreadCount}
+      </span>
+    )}
+  </Link>
+);
+
 const Navbar = () => {
   const { user } = useSelector((s) => s.auth);
   const dispatch = useDispatch();
@@ -83,11 +93,30 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const isEmployer = user?.role === "recruiter";
   const isAdmin = user?.role === "admin";
   const navLinks = isAdmin ? ADMIN_LINKS : isEmployer ? RECRUITER_LINKS : STUDENT_LINKS;
   const menuLinks = isAdmin ? ADMIN_MENU_LINKS : menuLinksFor(isEmployer);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await axiosInstance.get("/notification/get");
+      if (res.data.success) {
+        setUnreadCount(res.data.notifications.filter((n) => !n.isRead).length);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000); // poll every 30s
+    return () => clearInterval(interval);
+  }, [user]);
 
   const logoutHandler = async () => {
     try {
@@ -125,33 +154,40 @@ const Navbar = () => {
       </div>
 
       {user && (
-        <div className="relative ml-6 hidden lg:block">
-          <button onClick={() => setDropdownOpen(!dropdownOpen)} aria-label="Profile menu">
-            <Avatar user={user} />
-          </button>
+        <div className="hidden lg:flex items-center gap-5 ml-6">
+          <NotificationBell unreadCount={unreadCount} />
 
-          {dropdownOpen && (
-            <div className="absolute right-0 top-12 w-60 flex flex-col py-2 rounded-lg shadow-lg bg-white dark:bg-[#242426] border border-gray-200 dark:border-gray-700 z-50">
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                <Avatar user={user} size="h-10 w-10" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold truncate">{user?.fullname}</p>
-                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+          <div className="relative">
+            <button onClick={() => setDropdownOpen(!dropdownOpen)} aria-label="Profile menu">
+              <Avatar user={user} />
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 top-12 w-60 flex flex-col py-2 rounded-lg shadow-lg bg-white dark:bg-[#242426] border border-gray-200 dark:border-gray-700 z-50">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                  <Avatar user={user} size="h-10 w-10" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate">{user?.fullname}</p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-1 py-2">
-                <LinkList links={menuLinks} size="text-sm px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setDropdownOpen(false)} />
+                {menuLinks.length > 0 && (
+                  <div className="flex flex-col gap-1 py-2">
+                    <LinkList links={menuLinks} size="text-sm px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setDropdownOpen(false)} />
+                  </div>
+                )}
+                <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-2 text-sm px-4 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 text-left">
+                  <Icon d={ICONS.logout} /> Logout
+                </button>
               </div>
-              <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-2 text-sm px-4 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 text-left">
-                <Icon d={ICONS.logout} /> Logout
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
-      <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu" className="lg:hidden h-10 w-10 ml-auto flex items-center gap-2">
+      <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu" className="lg:hidden h-10 w-10 ml-auto flex items-center gap-3">
+        {user && <NotificationBell unreadCount={unreadCount} size="h-5 w-5" />}
         {user && <Avatar user={user} size="h-8 w-8" text="text-xs" />}
         <Icon d={menuOpen ? ICONS.close : ICONS.bars} className="h-6 w-6" />
       </button>
@@ -164,7 +200,9 @@ const Navbar = () => {
               <button onClick={() => setDarkMode(!darkMode)} className="text-base px-3 py-1 rounded border border-gray-600 w-fit">
                 {darkMode ? "☀️ Light" : "🌙 Dark"}
               </button>
-              <LinkList links={menuLinks} onClick={() => setMenuOpen(false)} />
+              {menuLinks.length > 0 && (
+                <LinkList links={menuLinks} onClick={() => setMenuOpen(false)} />
+              )}
               <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-2 text-sm text-red-500 text-left">
                 <Icon d={ICONS.logout} /> Logout
               </button>

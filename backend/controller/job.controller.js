@@ -1,4 +1,6 @@
 import {Job} from "../models/job.model.js";
+import { user as User } from "../models/user.model.js";
+import { Notification } from "../models/notification.model.js";
 
 
 export const postJob = async (req,res) =>{
@@ -186,6 +188,29 @@ export const updateJobStatus = async (req, res) => {
                 message: "Job not found",
                 success: false
             });
+        }
+
+        // notify emoloyers
+        await Notification.create({
+            user: job.created_by,
+            message: `Your job posting "${job.title}" has been ${status}.`,
+            type: "job_status",
+            relatedJob: job._id
+        });
+
+        // approved jobs alert
+        if (status === "approved") {
+            const students = await User.find({ role: "student" }).select("_id");
+            if (students.length) {
+                await Notification.insertMany(
+                    students.map((s) => ({
+                        user: s._id,
+                        message: `New job posted: "${job.title}"`,
+                        type: "job_alert",
+                        relatedJob: job._id
+                    }))
+                );
+            }
         }
 
         return res.status(200).json({
