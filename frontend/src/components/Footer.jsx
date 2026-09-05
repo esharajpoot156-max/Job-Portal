@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import logo from "../assets/logo.png";
 
 const Footer = () => {
+    const { user } = useSelector((store) => store.auth);
+    const isAdmin = user?.role === "admin";
+
+    if (isAdmin) return null;
+
     return (
         <footer className="bg-[#F4F4F5] dark:bg-[#1a1a1d] border-t border-gray-200 dark:border-gray-700 mt-auto">
             <div className="max-w-6xl mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -26,10 +32,6 @@ const Footer = () => {
                     <h4 className="font-semibold mb-3 text-sm text-gray-900 dark:text-white">Contact</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">support@jobportal.com</p>
                 </div>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-700 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
-                © {new Date().getFullYear()} Job Portal. All rights reserved.
             </div>
         </footer>
     );

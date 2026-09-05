@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axiosInstance from "../utils/axiosInstance";
 
 const AdminJobs = () => {
     const [jobs, setJobs] = useState([]);
+    const { user } = useSelector((store) => store.auth);
+    const isEmployer = user?.role === "recruiter";
 
     const fetchJobs = async () => {
         try {
@@ -24,9 +27,11 @@ const AdminJobs = () => {
         <div className="p-8 min-h-screen bg-white dark:bg-[#121214] dark:text-white">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">My Posted Jobs</h1>
-                <Link to="/admin/jobs/post" className="bg-[#8B5CF6] text-white px-4 py-2 rounded">
-                    + Post New Job
-                </Link>
+                {isEmployer && (
+                    <Link to="/admin/jobs/post" className="bg-[#8B5CF6] text-white px-4 py-2 rounded">
+                        + Post New Job
+                    </Link>
+                )}
             </div>
 
             <div className="space-y-4">
@@ -39,9 +44,11 @@ const AdminJobs = () => {
                                 <h3 className="font-semibold">{job.title}</h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{job.location} • {job.jobType}</p>
                             </div>
-                            <Link to={`/admin/jobs/${job._id}/applicants`} className="text-[#8B5CF6] text-sm">
-                                View Applicants
-                            </Link>
+                            {isEmployer && (
+                                <Link to={`/admin/jobs/${job._id}/applicants`} className="text-[#8B5CF6] text-sm">
+                                    View Applicants
+                                </Link>
+                            )}
                         </div>
                     ))
                 )}
