@@ -83,6 +83,11 @@ const AdminLogin = () => {
                             {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                         </button>
                     </div>
+                    <p className="text-right mb-5 -mt-2">
+    <Link to="/admin/forgot-password" className="text-sm text-[#8B5CF6] font-medium hover:opacity-80">
+        Forgot password?
+    </Link>
+</p>
 
                     <button
                         type="submit" disabled={loading}

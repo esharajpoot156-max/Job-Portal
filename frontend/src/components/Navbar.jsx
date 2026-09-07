@@ -92,9 +92,10 @@ const Navbar = () => {
   const logoutHandler = async () => {
     try {
       setLoggingOut(true);
+      const wasAdmin = isAdmin;
       await axiosInstance.get("/user/logout");
       dispatch(logoutUser());
-      navigate("/login");
+      navigate(wasAdmin ?"/admin/login":"/login");
     } catch (e) {
       console.log(e);
     } finally {

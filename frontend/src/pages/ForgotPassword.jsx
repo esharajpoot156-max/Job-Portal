@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, resolvePath } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 
-const ForgotPassword = () => {
+const ForgotPassword = ({role=null}) => {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
@@ -11,7 +11,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axiosInstance.post("/user/forgot-password", { email });
+            const res = await axiosInstance.post("/user/forgot-password", { email, role });
             if (res.data.success) {
                 setSent(true);
             }
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
                 )}
 
                 <p className="text-center mt-6 text-sm dark:text-gray-400">
-                    <Link to="/login" className="text-[#8B5CF6] font-medium">Back to Login</Link>
+                    <Link to={role === "admin" ? "/admin/login":"/login"} className="text-[#8B5CF6] font-medium">Back to Login</Link>
                 </p>
             </div>
         </div>

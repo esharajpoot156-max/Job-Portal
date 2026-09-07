@@ -239,15 +239,16 @@ export const logout = async (req,res) => {
 //forgot password
 export const forgotPassword = async (req,res) =>{ 
     try{ 
-        const { email } = req.body; 
+        const { email, role } = req.body;
+        console.log('Forgot password request:',{ email, role }) 
         if(!email){ 
             return res.status(400).json({ 
                 message: "Email is required", 
                 success: false 
             }); 
         } 
- 
-        const foundUser = await User.findOne({email}); 
+        const query = role ? { email, role } : { email, role:{$ne: "admin"} };
+        const foundUser = await User.findOne(query); 
         if(!foundUser){ 
             return res.status(404).json({ 
                 message: "No account found with this email", 

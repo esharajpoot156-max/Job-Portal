@@ -38,7 +38,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/my-jobs" element={<MyJobs />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
@@ -55,6 +55,7 @@ function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/forgot-password" element={<ForgotPassword/>} />
+        <Route path="/admin/forgot-password" element={<ForgotPassword role="admin"/>} />
         <Route path="/reset-password/:token" element={<ResetPassword/>} />
       </Routes>
       </div>
