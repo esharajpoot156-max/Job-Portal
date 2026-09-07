@@ -53,7 +53,11 @@ const menuLinksFor = (isEmployer) => [
   { to: "/help", label: "Help", icon: ICONS.help },
 ];
 
-const ADMIN_MENU_LINKS = [];
+const ADMIN_MENU_LINKS = [
+  { to: "/admin/profile", label: "Profile", icon: ICONS.profile },
+  { to: "/admin/settings", label: "Settings", icon: ICONS.settings },
+  { to: "/admin/help", label: "Help", icon: ICONS.help },
+];
 
 const LinkList = ({ links, size = "text-base", onClick }) =>
   links.map((l) => (
