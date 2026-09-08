@@ -1,47 +1,43 @@
-import { useState } from "react";
-import { HelpCircle, MessageSquare, Flag, BookOpen, ChevronDown, Mail, Phone } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import { HelpCircle, MessageSquare, Flag, Mail, Phone, Inbox, ChevronDown } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 
 const TABS = [
     { id: "faqs", label: "FAQs", icon: HelpCircle },
     { id: "contact", label: "Contact Support", icon: MessageSquare },
     { id: "report", label: "Report a Problem", icon: Flag },
-    { id: "guides", label: "Guides", icon: BookOpen },
+    { id: "mymessages", label: "My Messages", icon: Inbox },
 ];
 
-const FAQS = [
-    {
-        q: "How do I apply for a job?",
-        a: "Open any job listing and click Apply Now. If your resume is already on file, your application is submitted instantly — otherwise you'll be asked to upload one first.",
-    },
-    {
-        q: "How do I edit or update my resume?",
-        a: "Go to your Profile page and select Resume from the left menu. You can upload a new file or edit your details directly, and it updates on all future applications.",
-    },
-    {
-        q: "How does job matching work?",
-        a: "We match jobs to your profile using your skills, experience, and preferences. The more complete your profile, the more relevant your matches will be.",
-    },
-    {
-        q: "Can I withdraw an application after submitting it?",
-        a: "Yes. Open the job from your Applications tab and select Withdraw Application. The employer will no longer see it as active.",
-    },
-    {
-        q: "How do I reset my password?",
-        a: "Go to Settings > Account & Security to change your password while logged in. If you're locked out, use the Forgot Password link on the login page instead.",
-    },
-    {
-        q: "Why isn't my profile showing up to recruiters?",
-        a: "Check Settings > Privacy and make sure Public Profile is turned on. A hidden profile won't appear in recruiter searches.",
-    },
-];
+const FAQS = {
+    seeker: [
+        { q: "How do I apply for a job?", a: "Open any job listing and click Apply Now. If your resume is already on file, your application is submitted instantly — otherwise you'll be asked to upload one first." },
+        { q: "How do I edit or update my profile?", a: "Go to your profile page, you can edit your details directly, and it updates on all future applications." },
+        { q: "Is it free to use this platform?", a: "Yes, creating an account and applying to jobs is completely free for job seekers." },
+        { q: "Can I save jobs to look at later?", a: "Yes. Click the bookmark icon on any job listing to save it. Find all saved jobs under the saved jobs tab inside My Jobs." },
+        { q: "How do I reset my password?", a: "Go to Settings > Account & Security while logged in. If locked out, use Forgot Password on the login page." },
+        { q: "Why isn't my profile showing up to recruiters?", a: "Check Settings > Privacy and make sure Public Profile is turned on." },
+    ],
+    employer: [
+        { q: "How do I post a new job?", a: "Go to your Employer Dashboard and click Post a Job. Fill in the role details, requirements, and salary range, then submit." },
+        { q: "Why is my job posting still pending?", a: "Your job stays pending until admin approves it. Once approved, it becomes visible to job seekers." },
+        { q: "How do I view and manage applicants?", a: "Open the job posting from My posted jobs and click Applicants to view, accept, or reject each one." },
+        { q: "Will I be notified when someone applies?", a: "Yes. You'll get a notification each time a candidate applies to one of your job postings." },
+        { q: "How do I set up or update my company profile?", a: "Go to Company Settings to update your logo, description, industry, and location." },
+        { q: "Can I message a candidate before deciding?", a: "Yes. Open the applicant's profile from your applicants list and click message." },
+    ],
+};
 
-const GUIDES = [
-    { title: "Getting started as a job seeker", desc: "Set up your profile, add a resume, and start applying in minutes." },
-    { title: "Writing a resume that gets noticed", desc: "Tips on formatting, keywords, and what recruiters actually look for." },
-    { title: "Understanding application statuses", desc: "What Applied, In Review, Shortlisted, and Rejected actually mean." },
-    { title: "Staying safe on the job portal", desc: "How to spot fake listings and report suspicious employers." },
-];
+const REPORT_TYPES = {
+    seeker: ["Bug", "Fake Job Listing", "Inappropriate Content", "Harassment", "Other"],
+    employer: ["Bug", "Fake Candidate Profile", "Inappropriate Content", "Harassment", "Other"],
+};
+
+const statusStyles = { open: "bg-amber-500/15 text-amber-500", replied: "bg-blue-500/15 text-blue-500", closed: "bg-emerald-500/15 text-emerald-500" };
+
+const inputCls = "w-full px-4 py-2.5 rounded-xl border dark:border-gray-700 bg-white dark:bg-[#121214] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]";
 
 const Section = ({ title, children }) => (
     <div className="bg-white dark:bg-[#1a1a1d] border dark:border-gray-800 rounded-2xl p-6 space-y-4">
@@ -50,32 +46,10 @@ const Section = ({ title, children }) => (
     </div>
 );
 
-const Field = ({ label, ...props }) => (
+const Labeled = ({ label, children }) => (
     <div>
         <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
-        <input {...props} className="w-full px-4 py-2.5 rounded-xl border dark:border-gray-700 bg-white dark:bg-[#121214] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]" />
-    </div>
-);
-
-const TextArea = ({ label, ...props }) => (
-    <div>
-        <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
-        <textarea {...props} rows={5} className="w-full px-4 py-2.5 rounded-xl border dark:border-gray-700 bg-white dark:bg-[#121214] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] resize-none" />
-    </div>
-);
-
-const Select = ({ label, value, onChange, options }) => (
-    <div>
-        <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
-        <select
-            value={value}
-            onChange={onChange}
-            className="w-full px-4 py-2.5 rounded-xl border dark:border-gray-700 bg-white dark:bg-[#121214] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]"
-        >
-            {options.map((o) => (
-                <option key={o} value={o}>{o}</option>
-            ))}
-        </select>
+        {children}
     </div>
 );
 
@@ -89,41 +63,69 @@ const FaqItem = ({ q, a, open, onToggle }) => (
     </div>
 );
 
+const MyTicketCard = ({ t }) => {
+    const adminReply = t.thread?.filter((m) => m.sender === "admin").slice(-1)[0]
+        || (t.reply ? { message: t.reply } : null); // fallback for tickets replied before the thread system
+
+    return (
+        <div className="border-b dark:border-gray-800 pb-4 last:border-0 last:pb-0 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+                <p className="font-medium dark:text-white">{t.kind === "contact" ? (t.subject || "Contact message") : (t.issueType || "Report")}</p>
+                {t.status !== "open" && (
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full capitalize shrink-0 ${statusStyles[t.status]}`}>{t.status}</span>
+                )}
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t.message}</p>
+
+            {adminReply ? (
+                <div className="bg-gray-50 dark:bg-[#121214] rounded-lg p-3">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Admin reply</p>
+                    <p className="text-sm dark:text-gray-200">{adminReply.message}</p>
+                </div>
+            ) : (
+                <p className="text-xs text-gray-400 dark:text-gray-500 italic">Waiting for a reply...</p>
+            )}
+        </div>
+    );
+};
+
 const HelpPage = () => {
-    const [tab, setTab] = useState("faqs");
+    const { user } = useSelector((s) => s.auth);
+    const role = user?.role === "recruiter" || user?.role === "admin" ? "employer" : "seeker";
+
+    const [searchParams] = useSearchParams();
+    const [tab, setTab] = useState(searchParams.get("tab") || "faqs");
     const [openFaq, setOpenFaq] = useState(null);
     const [sending, setSending] = useState(false);
-
     const [contact, setContact] = useState({ subject: "", message: "" });
-    const [report, setReport] = useState({ issueType: "Bug", description: "" });
+    const [report, setReport] = useState({ issueType: REPORT_TYPES[role][0], description: "" });
+    const [myTickets, setMyTickets] = useState([]);
+    const [loadingTickets, setLoadingTickets] = useState(false);
 
-    const submitContact = async () => {
-        if (!contact.subject.trim() || !contact.message.trim()) return alert("Please fill in both subject and message");
+    useEffect(() => {
+        if (tab !== "mymessages") return;
+        setLoadingTickets(true);
+        axiosInstance.get("/support/mine")
+            .then((res) => res.data.success && setMyTickets(res.data.tickets))
+            .catch(console.log)
+            .finally(() => setLoadingTickets(false));
+    }, [tab]);
+
+    const submit = async (kind) => {
+        const isContact = kind === "contact";
+        const body = isContact ? contact : { issueType: report.issueType, description: report.description };
+        if (isContact ? (!contact.subject.trim() || !contact.message.trim()) : !report.description.trim())
+            return alert(isContact ? "Please fill in both subject and message" : "Please describe the problem");
+
         setSending(true);
         try {
-            const res = await axiosInstance.post("/support/contact", contact);
+            const res = await axiosInstance.post(`/support/${kind}`, body);
             if (res.data.success) {
-                alert("Message sent — our team will get back to you soon");
-                setContact({ subject: "", message: "" });
+                alert(isContact ? "Message sent — our team will get back to you soon" : "Thanks — your report has been submitted");
+                isContact ? setContact({ subject: "", message: "" }) : setReport({ issueType: REPORT_TYPES[role][0], description: "" });
             }
         } catch (e) {
-            alert(e.response?.data?.message || "Could not send your message");
-        } finally {
-            setSending(false);
-        }
-    };
-
-    const submitReport = async () => {
-        if (!report.description.trim()) return alert("Please describe the problem");
-        setSending(true);
-        try {
-            const res = await axiosInstance.post("/support/report", report);
-            if (res.data.success) {
-                alert("Thanks — your report has been submitted");
-                setReport({ issueType: "Bug", description: "" });
-            }
-        } catch (e) {
-            alert(e.response?.data?.message || "Could not submit your report");
+            alert(e.response?.data?.message || `Could not ${isContact ? "send your message" : "submit your report"}`);
         } finally {
             setSending(false);
         }
@@ -137,15 +139,9 @@ const HelpPage = () => {
                 <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible md:w-56 shrink-0 pb-2 md:pb-0">
                         {TABS.map(({ id, label, icon: Icon }) => (
-                            <button
-                                key={id}
-                                onClick={() => setTab(id)}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
-                                    tab === id ? "bg-[#8B5CF6] text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a1d]"
-                                }`}
-                            >
-                                <Icon size={16} />
-                                {label}
+                            <button key={id} onClick={() => setTab(id)}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${tab === id ? "bg-[#8B5CF6] text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a1d]"}`}>
+                                <Icon size={16} />{label}
                             </button>
                         ))}
                     </div>
@@ -153,8 +149,8 @@ const HelpPage = () => {
                     <div className="flex-1 space-y-6">
                         {tab === "faqs" && (
                             <Section title="Frequently Asked Questions">
-                                {FAQS.map((f, i) => (
-                                    <FaqItem key={f.q} q={f.q} a={f.a} open={openFaq === i} onToggle={() => setOpenFaq(openFaq === i ? null : i)} />
+                                {FAQS[role].map((f, i) => (
+                                    <FaqItem key={f.q} {...f} open={openFaq === i} onToggle={() => setOpenFaq(openFaq === i ? null : i)} />
                                 ))}
                             </Section>
                         )}
@@ -162,52 +158,44 @@ const HelpPage = () => {
                         {tab === "contact" && (
                             <>
                                 <Section title="Contact Support">
-                                    <Field label="Subject" type="text" value={contact.subject} onChange={(e) => setContact({ ...contact, subject: e.target.value })} placeholder="What's this about?" />
-                                    <TextArea label="Message" value={contact.message} onChange={(e) => setContact({ ...contact, message: e.target.value })} placeholder="Tell us more about your issue..." />
-                                    <button onClick={submitContact} disabled={sending} className="bg-[#8B5CF6] text-white px-6 py-2.5 rounded-xl font-medium disabled:opacity-50">
+                                    <Labeled label="Subject">
+                                        <input className={inputCls} value={contact.subject} onChange={(e) => setContact({ ...contact, subject: e.target.value })} placeholder="What's this about?" />
+                                    </Labeled>
+                                    <Labeled label="Message">
+                                        <textarea rows={5} className={`${inputCls} resize-none`} value={contact.message} onChange={(e) => setContact({ ...contact, message: e.target.value })} placeholder="Tell us more about your issue..." />
+                                    </Labeled>
+                                    <button onClick={() => submit("contact")} disabled={sending} className="bg-[#8B5CF6] text-white px-6 py-2.5 rounded-xl font-medium disabled:opacity-50">
                                         {sending ? "Sending..." : "Send Message"}
                                     </button>
                                 </Section>
-
                                 <Section title="Other Ways to Reach Us">
-                                    <div className="flex items-center gap-3 text-sm dark:text-gray-300">
-                                        <Mail size={16} className="text-[#8B5CF6]" />
-                                        support@jobportal.com
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm dark:text-gray-300">
-                                        <Phone size={16} className="text-[#8B5CF6]" />
-                                        +92 300 1234567 (Mon–Fri, 9am–6pm)
-                                    </div>
+                                    <div className="flex items-center gap-3 text-sm dark:text-gray-300"><Mail size={16} className="text-[#8B5CF6]" />{role === "employer" ? "employers@jobportal.com" : "support@jobportal.com"}</div>
+                                    <div className="flex items-center gap-3 text-sm dark:text-gray-300"><Phone size={16} className="text-[#8B5CF6]" />+92 300 1234567 (Mon-Fri, 9am-6pm)</div>
                                 </Section>
                             </>
                         )}
 
                         {tab === "report" && (
                             <Section title="Report a Problem">
-                                <Select
-                                    label="Issue Type"
-                                    value={report.issueType}
-                                    onChange={(e) => setReport({ ...report, issueType: e.target.value })}
-                                    options={["Bug", "Fake Job Listing", "Inappropriate Content", "Harassment", "Other"]}
-                                />
-                                <TextArea label="Description" value={report.description} onChange={(e) => setReport({ ...report, description: e.target.value })} placeholder="What happened? Include any relevant details..." />
-                                <button onClick={submitReport} disabled={sending} className="bg-[#8B5CF6] text-white px-6 py-2.5 rounded-xl font-medium disabled:opacity-50">
+                                <Labeled label="Issue Type">
+                                    <select value={report.issueType} onChange={(e) => setReport({ ...report, issueType: e.target.value })} className={inputCls}>
+                                        {REPORT_TYPES[role].map((o) => <option key={o} value={o}>{o}</option>)}
+                                    </select>
+                                </Labeled>
+                                <Labeled label="Description">
+                                    <textarea rows={5} className={`${inputCls} resize-none`} value={report.description} onChange={(e) => setReport({ ...report, description: e.target.value })} placeholder="What happened? Include any relevant details..." />
+                                </Labeled>
+                                <button onClick={() => submit("report")} disabled={sending} className="bg-[#8B5CF6] text-white px-6 py-2.5 rounded-xl font-medium disabled:opacity-50">
                                     {sending ? "Submitting..." : "Submit Report"}
                                 </button>
                             </Section>
                         )}
 
-                        {tab === "guides" && (
-                            <Section title="Guides & Resources">
-                                {GUIDES.map((g) => (
-                                    <div key={g.title} className="flex items-center justify-between gap-4 border-b dark:border-gray-800 pb-4 last:border-0 last:pb-0">
-                                        <div>
-                                            <p className="font-medium dark:text-white">{g.title}</p>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">{g.desc}</p>
-                                        </div>
-                                        <button className="text-sm text-[#8B5CF6] font-medium shrink-0">Read</button>
-                                    </div>
-                                ))}
+                        {tab === "mymessages" && (
+                            <Section title="My Messages">
+                                {loadingTickets ? <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+                                    : myTickets.length === 0 ? <p className="text-sm text-gray-500 dark:text-gray-400">You haven't sent any messages or reports yet.</p>
+                                    : myTickets.map((t) => <MyTicketCard key={t._id} t={t} />)}
                             </Section>
                         )}
                     </div>

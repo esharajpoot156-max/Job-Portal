@@ -28,12 +28,12 @@ const MyPostedJob = () => {
     }, []);
 
     return (
-        <div className="p-8 max-w-5xl mx-auto min-h-screen bg-white dark:bg-[#121214] dark:text-white">
-            <div className="flex items-center justify-between mb-6">
+        <div className="p-4 sm:p-8 max-w-5xl mx-auto min-h-screen bg-white dark:bg-[#121214] dark:text-white">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h1 className="text-2xl font-bold">My Posted Jobs</h1>
                 <button
                     onClick={() => navigate("/admin/jobs/post")}
-                    className="bg-[#8B5CF6] text-white px-4 py-2 rounded"
+                    className="bg-[#8B5CF6] text-white px-4 py-2 rounded self-start sm:self-auto"
                 >
                     + Post New Job
                 </button>
@@ -50,11 +50,11 @@ const MyPostedJob = () => {
                     {jobs.map((job) => (
                         <div
                             key={job._id}
-                            className="border rounded-lg p-4 flex justify-between items-start dark:border-gray-700 dark:bg-[#1a1a1d]"
+                            className="border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 dark:border-gray-700 dark:bg-[#1a1a1d]"
                         >
-                            <div>
-                                <h2 className="text-lg font-semibold">{job.title}</h2>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <div className="min-w-0">
+                                <h2 className="text-lg font-semibold break-words">{job.title}</h2>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 break-words">
                                     {job.company?.name} • {job.location}
                                 </p>
                                 <div className="flex gap-2 mt-2 flex-wrap">
@@ -62,7 +62,7 @@ const MyPostedJob = () => {
                                         {job.jobType}
                                     </span>
                                     <span className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
-                                        {job.experience} yrs exp
+                                        {job.experienceLevel} yrs exp
                                     </span>
                                     <span className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
                                         {job.position} position{job.position > 1 ? "s" : ""}
@@ -73,14 +73,24 @@ const MyPostedJob = () => {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2 items-end">
-                                <button
-                                    onClick={() => navigate(`/admin/jobs/${job._id}/applicants`)}
-                                    className="text-sm px-3 py-1 rounded border border-[#8B5CF6] text-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white transition"
-                                >
-                                    View Applicants
-                                </button>
-                                <span className="text-xs text-gray-400">
+                            <div className="flex flex-col items-end gap-2 shrink-0">
+                                {job.status === "approved" ? (
+                                    <button
+                                        onClick={() => navigate(`/admin/jobs/${job._id}/applicants`)}
+                                        className="text-sm px-3 py-1 rounded border border-[#8B5CF6] text-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white transition whitespace-nowrap"
+                                    >
+                                        View Applicants
+                                    </button>
+                                ) : job.status === "rejected" ? (
+                                    <span className="text-sm px-3 py-1 rounded border border-red-500 text-red-500 bg-red-50 dark:bg-red-900/20 whitespace-nowrap">
+                                        Rejected
+                                    </span>
+                                ) : (
+                                    <span className="text-sm px-3 py-1 rounded border border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400 whitespace-nowrap">
+                                        Waiting for approval
+                                    </span>
+                                )}
+                                <span className="text-xs text-gray-400 whitespace-nowrap">
                                     Posted {new Date(job.createdAt).toLocaleDateString()}
                                 </span>
                             </div>

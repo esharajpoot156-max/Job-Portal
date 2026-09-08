@@ -45,9 +45,21 @@ const AdminJobs = () => {
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{job.location} • {job.jobType}</p>
                             </div>
                             {isEmployer && (
-                                <Link to={`/admin/jobs/${job._id}/applicants`} className="text-[#8B5CF6] text-sm">
-                                    View Applicants
-                                </Link>
+                                <div className="flex items-center gap-3">
+                                    {job.status === "approved" ? (
+                                        <Link to={`/admin/jobs/${job._id}/applicants`} className="text-[#8B5CF6] text-sm">
+                                            View Applicants
+                                        </Link>
+                                    ) : job.status === "rejected" ? (
+                                        <span className="text-sm px-3 py-1 rounded border border-red-500 text-red-500 bg-red-50 dark:bg-red-900/20">
+                                            Rejected
+                                        </span>
+                                    ) : (
+                                        <span className="text-sm px-3 py-1 rounded border border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400">
+                                            Waiting for approval
+                                        </span>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))

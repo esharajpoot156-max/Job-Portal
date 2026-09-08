@@ -26,6 +26,19 @@ export const postJob = async (req,res) =>{
             company: companyId,
             created_by: userId
         });
+
+        const admins = await User.find({ role: "admin" }).select("_id");
+        if (admins.length) {
+            await Notification.insertMany(
+                admins.map((a) => ({
+                    user: a._id,
+                    message: `New job "${job.title}" is waiting for approval.`,
+                    type: "job_posted",
+                    relatedJob: job._id
+                }))
+            );
+        }
+
         return res.status(201).json({
             message: "New Job created Successfully.... ",
             job,
