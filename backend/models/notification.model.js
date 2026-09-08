@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ["application_status", "application_received", "job_status", "job_alert", "message", "general"],
+        enum: ["application_status", "application_received", "job_status", "job_alert", "message", "general", "support_reply", "job_posted", "support_request"],
         default: "general"
     },
     relatedApplication: {

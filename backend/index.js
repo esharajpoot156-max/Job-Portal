@@ -11,6 +11,7 @@ import messageRoute from "./routes/message.routes.js"
 import { app, server } from "./utils/socket.js";
 import notificationRoute from "./routes/notification.routes.js";
 import adminRoute from "./routes/admin.routes.js";
+import supportRoute from "./routes/support.routes.js";
 
 dotenv.config({});
 
@@ -35,6 +36,7 @@ app.use("/api/v1/application",applicationRoute);
 app.use("/api/v1/message",messageRoute);
 app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/admin", adminRoute);
+app.use("/api/v1/support", supportRoute);
 
 connectDB().then(()=>{
     server.listen(PORT,()=>{
