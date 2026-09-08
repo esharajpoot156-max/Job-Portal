@@ -49,7 +49,6 @@ const ADMIN_LINKS = [
 const menuLinksFor = (isEmployer) => [
   { to: "/profile", label: isEmployer ? "Company Profile" : "Profile", icon: ICONS.profile },
   { to: "/settings", label: "Settings", icon: ICONS.settings },
-  { to: "/language", label: "Language", icon: ICONS.language },
   { to: "/help", label: "Help", icon: ICONS.help },
 ];
 
