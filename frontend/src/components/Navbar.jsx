@@ -49,11 +49,14 @@ const ADMIN_LINKS = [
 const menuLinksFor = (isEmployer) => [
   { to: "/profile", label: isEmployer ? "Company Profile" : "Profile", icon: ICONS.profile },
   { to: "/settings", label: "Settings", icon: ICONS.settings },
-  { to: "/language", label: "Language", icon: ICONS.language },
   { to: "/help", label: "Help", icon: ICONS.help },
 ];
 
-const ADMIN_MENU_LINKS = [];
+const ADMIN_MENU_LINKS = [
+  { to: "/admin/profile", label: "Profile", icon: ICONS.profile },
+  { to: "/admin/settings", label: "Settings", icon: ICONS.settings },
+  { to: "/admin/help", label: "Help", icon: ICONS.help },
+];
 
 const LinkList = ({ links, size = "text-base", onClick }) =>
   links.map((l) => (
@@ -121,9 +124,10 @@ const Navbar = () => {
   const logoutHandler = async () => {
     try {
       setLoggingOut(true);
+      const wasAdmin = isAdmin;
       await axiosInstance.get("/user/logout");
       dispatch(logoutUser());
-      navigate("/login");
+      navigate(wasAdmin ?"/admin/login":"/login");
     } catch (e) {
       console.log(e);
     } finally {

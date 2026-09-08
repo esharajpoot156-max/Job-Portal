@@ -2,6 +2,8 @@ import { user as User } from "../models/user.model.js";
 import { Company } from "../models/company.model.js";
 import { Job } from "../models/job.model.js";
 import { Application } from "../models/application.model.js";
+import { SupportTicket } from "../models/support.model.js";
+import { Notification } from "../models/notification.model.js";
 
 // dashboard stats
 export const getDashboardStats = async (req, res) => {
@@ -135,6 +137,102 @@ export const deleteCompany = async (req, res) => {
         return res.status(200).json({
             message: "Company deleted successfully",
             success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+};
+
+// get all support tickets (contact and report)
+export const getAllSupportTickets = async (req, res) => {
+    try {
+        const tickets = await SupportTicket.find()
+            .populate("user", "fullname companyName email role")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            tickets
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+};
+
+// admin reply to a ticket
+export const replyToSupportTicket = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reply } = req.body;
+
+        if (!reply?.trim()) {
+            return res.status(400).json({
+                message: "Reply cannot be empty",
+                success: false
+            });
+        }
+
+        const ticket = await SupportTicket.findByIdAndUpdate(
+            id,
+            { reply, status: "replied", repliedAt: new Date() },
+            { new: true }
+        );
+
+        if (!ticket) {
+            return res.status(404).json({
+                message: "Ticket not found",
+                success: false
+            });
+        }
+
+        await Notification.create({
+            user: ticket.user,
+            message: `Support replied to your ${ticket.kind === "contact" ? "message" : "report"}: "${reply.slice(0, 80)}"`,
+            type: "support_reply"
+        });
+
+        return res.status(200).json({
+            success: true,
+            ticket
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+};
+
+// admin marks a ticket closed
+export const closeSupportTicket = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const ticket = await SupportTicket.findByIdAndUpdate(
+            id,
+            { status: "closed" },
+            { new: true }
+        );
+
+        if (!ticket) {
+            return res.status(404).json({
+                message: "Ticket not found",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            ticket
         });
     } catch (error) {
         console.log(error);
