@@ -9,13 +9,11 @@ const SEEKER_TYPES = {
     job_alert: { label: "Job Alert", icon: Briefcase, dot: "bg-emerald-500/15 text-emerald-500" },
     application_status: { label: "Application", icon: FileText, dot: "bg-amber-500/15 text-amber-500" },
     support_reply: { label: "Support Reply", icon: LifeBuoy, dot: "bg-teal-500/15 text-teal-500" },
-    general: { label: "General", icon: Bell, dot: "bg-[#8B5CF6]/15 text-[#8B5CF6]" },
 };
 const EMPLOYER_TYPES = {
     message: { label: "Message", icon: MessageSquare, dot: "bg-blue-500/15 text-blue-500" },
     application_received: { label: "New Applicant", icon: Users, dot: "bg-pink-500/15 text-pink-500" },
     support_reply: { label: "Support Reply", icon: LifeBuoy, dot: "bg-teal-500/15 text-teal-500" },
-    general: { label: "General", icon: Bell, dot: "bg-[#8B5CF6]/15 text-[#8B5CF6]" },
 };
 const ADMIN_TYPES = {
     job_posted: { label: "New Jobs", icon: Briefcase, dot: "bg-emerald-500/15 text-emerald-500" },
