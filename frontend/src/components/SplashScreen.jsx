@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import {Search} from "lucide-react";
 
 const SplashScreen = ({ onFinish }) => {
     const [progress, setProgress] = useState(0);
@@ -28,9 +29,9 @@ const SplashScreen = ({ onFinish }) => {
         >
             <div className="relative mb-8">
                 <div className="absolute -inset-3 rounded-3xl border-t-2 border-[#8B5CF6] animate-spin-slow"></div>
-                <div className="w-24 h-24 rounded-2xl bg-[#1a1a1d] flex items-center justify-center text-4xl font-bold text-[#8B5CF6]">
-                    JE
-                </div>
+               <div className="w-24 h-24 rounded-2xl bg-[#1a1a1d] flex items-center justify-center text-[#8B5CF6]">
+    <Search size={40} strokeWidth={2} />
+</div>
             </div>
 
             <h1 className="text-2xl font-bold mb-1">
