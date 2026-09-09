@@ -21,6 +21,8 @@ const Profile = () => {
         bio: user?.profile?.bio || ""
     });
     const [file, setFile] = useState(null);
+    const [existingResume, setExistingResume] = useState(user?.profile?.resume || null);
+    const [existingResumeName, setExistingResumeName] = useState(user?.profile?.resumeOriginalname || "");
     const [loading, setLoading] = useState(false);
     const [profileCreated, setProfileCreated] = useState(
         !!(user?.profile?.bio || user?.profile?.qualification || user?.profile?.skills?.length || user?.profile?.resume)
@@ -48,6 +50,9 @@ const Profile = () => {
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
                 setProfileCreated(true);
+                setExistingResume(res.data.user?.profile?.resume || existingResume);
+                setExistingResumeName(res.data.user?.profile?.resumeOriginalname || existingResumeName);
+                setFile(null);
                 alert(res.data.message);
             }
         } catch (error) {
@@ -127,7 +132,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-
                 <div>
                     <label className={labelClass}>Bio</label>
                     <textarea
@@ -141,17 +145,18 @@ const Profile = () => {
 
                 {user?.role === "student" && (
                     <>
-                            <div>
-            <label className={labelClass}>Qualification *</label>
-            <input
-                type="text"
-                name="qualification"
-                required
-                value={input.qualification}
-                onChange={changeHandler}
-                className={plainInputClass}
-            />
-        </div>
+                        <div>
+                            <label className={labelClass}>Qualification *</label>
+                            <input
+                                type="text"
+                                name="qualification"
+                                required
+                                value={input.qualification}
+                                onChange={changeHandler}
+                                className={plainInputClass}
+                            />
+                        </div>
+
                         <div>
                             <label className={labelClass}>Skills *</label>
                             <input
@@ -209,13 +214,17 @@ const Profile = () => {
                                     <input
                                         type="file"
                                         accept=".pdf,.doc,.docx"
-                                        required={!profileCreated}
+                                        required={!profileCreated && !existingResume}
                                         onChange={fileHandler}
                                         className="hidden"
                                     />
                                 </label>
                                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                                    {file ? file.name : "No file chosen"}
+                                    {file
+                                        ? file.name
+                                        : existingResume
+                                        ? <a href={existingResume} target="_blank" rel="noreferrer" className="underline text-[#8B5CF6]">{existingResumeName || "View current resume"}</a>
+                                        : "No file chosen"}
                                 </span>
                             </div>
                         </div>
