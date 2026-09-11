@@ -10,7 +10,7 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            const newSocket = io("http://localhost:8000", {
+            const newSocket = io(["http://localhost:8000", "https://job-portal-ad90.onrender.com"], {
                 query: { userId: user._id }
             });
             setSocket(newSocket);
