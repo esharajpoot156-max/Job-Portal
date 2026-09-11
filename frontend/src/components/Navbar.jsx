@@ -197,30 +197,95 @@ const Navbar = () => {
       </button>
 
       {menuOpen && (
-        <div className="absolute top-20 left-0 w-full flex flex-col gap-4 px-6 py-6 shadow-md lg:hidden bg-[#F4F4F5] dark:bg-[#1a1a1d] border-b border-gray-200 dark:border-gray-700 z-50">
-          {user ? (
-            <>
-              <LinkList links={navLinks} onClick={() => setMenuOpen(false)} />
-              <button onClick={() => setDarkMode(!darkMode)} className="text-base px-3 py-1 rounded border border-gray-600 w-fit">
-                {darkMode ? "☀️ Light" : "🌙 Dark"}
-              </button>
-              {menuLinks.length > 0 && (
-                <LinkList links={menuLinks} onClick={() => setMenuOpen(false)} />
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div className="absolute top-20 left-0 w-full flex flex-col shadow-xl lg:hidden bg-white dark:bg-[#1a1a1d] border-b border-gray-200 dark:border-gray-700 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto">
+            {user && (
+              <div className="flex items-center gap-3 px-5 py-4 bg-[#F4F4F5] dark:bg-[#242426] border-b border-gray-200 dark:border-gray-700">
+                <Avatar user={user} size="h-11 w-11" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate">{user?.fullname}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col px-3 py-3 gap-1">
+              {user ? (
+                <>
+                  {navLinks.map((l) => (
+                    <Link
+                      key={l.to}
+                      to={l.to}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 text-sm font-medium px-3 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                    >
+                      <Icon d={l.icon} className="h-5 w-5 text-[#8B5CF6]" /> {l.label}
+                    </Link>
+                  ))}
+
+                  {menuLinks.length > 0 && (
+                    <>
+                      <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
+                      {menuLinks.map((l) => (
+                        <Link
+                          key={l.to}
+                          to={l.to}
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-3 text-sm font-medium px-3 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                        >
+                          <Icon d={l.icon} className="h-5 w-5 text-[#8B5CF6]" /> {l.label}
+                        </Link>
+                      ))}
+                    </>
+                  )}
+
+                  <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
+
+                  <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    className="flex items-center gap-3 text-sm font-medium px-3 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition text-left"
+                  >
+                    {darkMode ? "☀️" : "🌙"} {darkMode ? "Light mode" : "Dark mode"}
+                  </button>
+
+                  <button
+                    onClick={() => setConfirmLogout(true)}
+                    className="flex items-center gap-3 text-sm font-medium px-3 py-3 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition text-left"
+                  >
+                    <Icon d={ICONS.logout} className="h-5 w-5" /> Logout
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col gap-2 px-2 py-2">
+                  <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    className="text-sm px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-left"
+                  >
+                    {darkMode ? "☀️ Light mode" : "🌙 Dark mode"}
+                  </button>
+                  <Link
+                    to="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-sm font-medium px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-center"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-sm font-medium px-3 py-2.5 rounded-lg bg-[#8B5CF6] text-white text-center"
+                  >
+                    Register
+                  </Link>
+                </div>
               )}
-              <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-2 text-sm text-red-500 text-left">
-                <Icon d={ICONS.logout} /> Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setDarkMode(!darkMode)} className="text-base px-3 py-1 rounded border border-gray-600 w-fit">
-                {darkMode ? "☀️ Light" : "🌙 Dark"}
-              </button>
-              <Link to="/login">Login</Link>
-              <Link to="/register" className="bg-[#8B5CF6] text-white px-4 py-1.5 rounded">Register</Link>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        </>
       )}
 
       {confirmLogout && (

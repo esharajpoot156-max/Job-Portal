@@ -329,7 +329,8 @@ export const resetPassword = async (req,res) =>{
 export const updateProfile = async (req,res) =>{ 
     try{ 
         const {fullname,email, phoneNumber,bio,skills,city,qualification,experience,jobPreference,salaryExpectation } = req.body; 
-        const file = req.file; 
+        const resumeFile = req.files?.file?.[0]; 
+        const profilePhotoFile = req.files?.profilePhoto?.[0]; 
  
         let skillsArray; 
         if(skills){ 
@@ -365,13 +366,23 @@ export const updateProfile = async (req,res) =>{
         if(salaryExpectation !== undefined) user.profile.salaryExpectation = salaryExpectation 
  
         // resume upload 
-        if(file){ 
-            const fileUri = getDataUri(file); 
+        if(resumeFile){ 
+            const fileUri = getDataUri(resumeFile); 
             const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { 
                 resource_type: "raw" 
             }); 
             user.profile.resume = cloudResponse.secure_url; 
-            user.profile.resumeOriginalname = file.originalname; 
+            user.profile.resumeOriginalname = resumeFile.originalname; 
+        } 
+
+        // profile picture upload 
+        if(profilePhotoFile){ 
+            const photoUri = getDataUri(profilePhotoFile); 
+            const photoResponse = await cloudinary.uploader.upload(photoUri.content, { 
+                resource_type: "image", 
+                folder: "profile_photos" 
+            }); 
+            user.profile.profilePhoto = photoResponse.secure_url; 
         } 
  
         await user.save(); 
