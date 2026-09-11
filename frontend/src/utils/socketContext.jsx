@@ -10,7 +10,7 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            const newSocket = io("http://localhost:8000", {
+            const newSocket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:8000", {
                 query: { userId: user._id }
             });
             setSocket(newSocket);
