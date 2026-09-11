@@ -20,14 +20,12 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser());
 
-const io = new Server(server, {
-    cors: {
-        origin: ["http://localhost:5173", "http://localhost:5174", "https://job-portal-sepia-zeta.vercel.app"],
-        credentials: true
-    }
-});
+const corsOptions = {
+    origin: ["http://localhost:5173", "http://localhost:5174", "https://job-portal-sepia-zeta.vercel.app"],
+    credentials: true
+}
 
-app.use(cors(io)); 
+app.use(cors(corsOptions)); 
 
 const PORT = process.env.PORT || 3000;
 
