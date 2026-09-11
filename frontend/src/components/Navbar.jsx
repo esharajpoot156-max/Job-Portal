@@ -66,11 +66,17 @@ const LinkList = ({ links, size = "text-base", onClick }) =>
   ));
 
 // Avatar showing profile initial
+// Avatar showing profile photo or initial
 const Avatar = ({ user, size = "h-9 w-9", text = "text-sm" }) => {
   const initial = (user?.fullname || user?.email || "?").trim().charAt(0).toUpperCase();
+  const photo = user?.profile?.profilePhoto;
   return (
-    <div className={`${size} ${text} rounded-full bg-[#8B5CF6] text-white flex items-center justify-center font-semibold shrink-0`}>
-      {initial}
+    <div className={`${size} ${text} rounded-full bg-[#8B5CF6] text-white flex items-center justify-center font-semibold shrink-0 overflow-hidden`}>
+      {photo ? (
+        <img src={photo} alt={user?.fullname || "Profile"} className="h-full w-full object-cover" />
+      ) : (
+        initial
+      )}
     </div>
   );
 };
