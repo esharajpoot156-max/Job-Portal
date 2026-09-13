@@ -1,6 +1,7 @@
 import {Job} from "../models/job.model.js";
 import { user as User } from "../models/user.model.js";
 import { Notification } from "../models/notification.model.js";
+import { Application } from "../models/application.model.js";
 
 
 export const postJob = async (req,res) =>{
@@ -263,6 +264,10 @@ export const deleteJob = async (req, res) => {
                 success: false
             });
         }
+
+        await Application.deleteMany({ job: id });
+        await User.updateMany({ savedJobs: id }, { $pull: { savedJobs: id } });
+        await Notification.deleteMany({ relatedJob: id });
 
         await Job.findByIdAndDelete(id);
 
