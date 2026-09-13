@@ -119,7 +119,7 @@ export const getCompanyById = async (req, res) => {
 export const updateCompany = async (req, res) => {
     try {
         const {
-            name,
+            companyName,
             email,
             description,
             website,
@@ -131,7 +131,7 @@ export const updateCompany = async (req, res) => {
         const file = req.file;
 
         const updateData = {
-            name,
+            name: companyName,
             email,
             description,
             website,
@@ -140,25 +140,38 @@ export const updateCompany = async (req, res) => {
             companySize,
             foundedYear
         };
+
         if (file) {
             const fileUri = getDataUri(file);
             const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
             updateData.logo = cloudResponse.secure_url;
         }
+
         const company = await Company.findByIdAndUpdate(req.params.id, updateData, { new: true });
+
         if (!company) {
             return res.status(404).json({
                 message: "Company not found",
                 success: false
             });
         }
+
         return res.status(200).json({
             message: "Company information is updated.",
             company,
             success: true
         });
+
     } catch (error) {
         console.log(error);
+
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "Company Name is already registered.",
+                success: false
+            });
+        }
+
         return res.status(500).json({
             message: "Server error",
             success: false
