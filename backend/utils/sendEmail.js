@@ -1,45 +1,47 @@
-import nodemailer from "nodemailer";
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-export const sendVerificationEmail = async (toEmail, token) => {
-    const transporter = nodemailer.createTransport({
-        host: "smtp-relay.brevo.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.BREVO_SMTP_USER,
-            pass: process.env.BREVO_SMTP_PASS
-        }
+const sendBrevoEmail = async ({ toEmail, toName, subject, html }) => {
+    const response = await fetch(BREVO_API_URL, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "api-key": process.env.BREVO_API_KEY
+        },
+        body: JSON.stringify({
+            sender: { name: "Job Portal", email: process.env.SENDER_EMAIL },
+            to: [{ email: toEmail, name: toName || toEmail }],
+            subject,
+            htmlContent: html
+        })
     });
 
-    const verifyUrl = `${process.env.CLIENT_URL}/verify/${token}`;
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.log("Brevo API error:", errorData);
+        throw new Error("Failed to send email");
+    }
 
-    await transporter.sendMail({
-        from: `"Job Portal" <${process.env.SENDER_EMAIL}>`,
-        to: toEmail,
+    return response.json();
+};
+
+export const sendVerificationEmail = async (toEmail, code) => {
+    await sendBrevoEmail({
+        toEmail,
         subject: "Verify your email",
         html: `
             <h2>Email Verification</h2>
-            <p>Click the link below to verify your account:</p>
-            <a href="${verifyUrl}">${verifyUrl}</a>
-            <p>This link will expire in 1 hour.</p>
+            <p>Your verification code is:</p>
+            <h1 style="letter-spacing: 4px;">${code}</h1>
+            <p>This code will expire in 15 minutes.</p>
         `
     });
 };
-// notification 
-export const sendStatusUpdateEmail = async (toEmail, applicantName, jobTitle, status) => {
-    const transporter = nodemailer.createTransport({
-        host: "smtp-relay.brevo.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.BREVO_SMTP_USER,
-            pass: process.env.BREVO_SMTP_PASS
-        }
-    });
 
-    await transporter.sendMail({
-        from: `"Job Portal" <${process.env.SENDER_EMAIL}>`,
-        to: toEmail,
+export const sendStatusUpdateEmail = async (toEmail, applicantName, jobTitle, status) => {
+    await sendBrevoEmail({
+        toEmail,
+        toName: applicantName,
         subject: `Application Status Update - ${jobTitle}`,
         html: `
             <h2>Hi ${applicantName},</h2>
@@ -48,23 +50,12 @@ export const sendStatusUpdateEmail = async (toEmail, applicantName, jobTitle, st
         `
     });
 };
-//reset password
-export const sendResetPasswordEmail = async (toEmail, token) => {
-    const transporter = nodemailer.createTransport({
-        host: "smtp-relay.brevo.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.BREVO_SMTP_USER,
-            pass: process.env.BREVO_SMTP_PASS
-        }
-    });
 
+export const sendResetPasswordEmail = async (toEmail, token) => {
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-    await transporter.sendMail({
-        from: `"Job Portal" <${process.env.SENDER_EMAIL}>`,
-        to: toEmail,
+    await sendBrevoEmail({
+        toEmail,
         subject: "Reset your password",
         html: `
             <h2>Password Reset Request</h2>
@@ -74,15 +65,3 @@ export const sendResetPasswordEmail = async (toEmail, token) => {
         `
     });
 };
-
-const transporter = nodemailer.createTransport({
-    host: "smtp-relay.brevo.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.BREVO_SMTP_USER,
-        pass: process.env.BREVO_SMTP_PASS
-    }
-});
-
-export default transporter;

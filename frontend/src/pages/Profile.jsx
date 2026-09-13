@@ -21,6 +21,10 @@ const Profile = () => {
         bio: user?.profile?.bio || ""
     });
     const [file, setFile] = useState(null);
+    const [existingResume, setExistingResume] = useState(user?.profile?.resume || null);
+    const [existingResumeName, setExistingResumeName] = useState(user?.profile?.resumeOriginalname || "");
+    const [profilePhoto, setProfilePhoto] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(user?.profile?.profilePhoto || null);
     const [loading, setLoading] = useState(false);
     const [profileCreated, setProfileCreated] = useState(
         !!(user?.profile?.bio || user?.profile?.qualification || user?.profile?.skills?.length || user?.profile?.resume)
@@ -34,11 +38,20 @@ const Profile = () => {
         setFile(e.target.files[0]);
     };
 
+    const photoHandler = (e) => {
+        const selected = e.target.files[0];
+        if (selected) {
+            setProfilePhoto(selected);
+            setPhotoPreview(URL.createObjectURL(selected));
+        }
+    };
+
     const submitHandler = async (e) => {
         e.preventDefault();
         const formData = new FormData();
         Object.entries(input).forEach(([key, value]) => formData.append(key, value));
         if (file) formData.append("file", file);
+        if (profilePhoto) formData.append("profilePhoto", profilePhoto);
 
         try {
             setLoading(true);
@@ -48,6 +61,11 @@ const Profile = () => {
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
                 setProfileCreated(true);
+                setExistingResume(res.data.user?.profile?.resume || existingResume);
+                setExistingResumeName(res.data.user?.profile?.resumeOriginalname || existingResumeName);
+                setPhotoPreview(res.data.user?.profile?.profilePhoto || photoPreview);
+                setFile(null);
+                setProfilePhoto(null);
                 alert(res.data.message);
             }
         } catch (error) {
@@ -68,6 +86,23 @@ const Profile = () => {
             <h1 className="text-2xl font-bold mb-6">
                 {profileCreated ? "My Profile" : "Create Profile"}
             </h1>
+
+            <div className="flex flex-col items-center gap-3 mb-6">
+                <div className="relative">
+                    <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-[#8B5CF6]/30 bg-[#8B5CF6] flex items-center justify-center text-white text-3xl font-semibold">
+                        {photoPreview ? (
+                            <img src={photoPreview} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                            (input.fullname || "?").trim().charAt(0).toUpperCase()
+                        )}
+                    </div>
+                    <label className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center cursor-pointer border-2 border-white dark:border-[#121214] hover:bg-[#7c4fe0]">
+                        ✎
+                        <input type="file" accept="image/*" onChange={photoHandler} className="hidden" />
+                    </label>
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Tap the pencil to change photo</span>
+            </div>
 
             <form onSubmit={submitHandler} className="space-y-4">
                 <div>
@@ -127,7 +162,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-
                 <div>
                     <label className={labelClass}>Bio</label>
                     <textarea
@@ -141,17 +175,18 @@ const Profile = () => {
 
                 {user?.role === "student" && (
                     <>
-                            <div>
-            <label className={labelClass}>Qualification *</label>
-            <input
-                type="text"
-                name="qualification"
-                required
-                value={input.qualification}
-                onChange={changeHandler}
-                className={plainInputClass}
-            />
-        </div>
+                        <div>
+                            <label className={labelClass}>Qualification *</label>
+                            <input
+                                type="text"
+                                name="qualification"
+                                required
+                                value={input.qualification}
+                                onChange={changeHandler}
+                                className={plainInputClass}
+                            />
+                        </div>
+
                         <div>
                             <label className={labelClass}>Skills *</label>
                             <input
@@ -209,13 +244,17 @@ const Profile = () => {
                                     <input
                                         type="file"
                                         accept=".pdf,.doc,.docx"
-                                        required={!profileCreated}
+                                        required={!profileCreated && !existingResume}
                                         onChange={fileHandler}
                                         className="hidden"
                                     />
                                 </label>
                                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                                    {file ? file.name : "No file chosen"}
+                                    {file
+                                        ? file.name
+                                        : existingResume
+                                        ? <a href={existingResume} target="_blank" rel="noreferrer" className="underline text-[#8B5CF6]">{existingResumeName || "View current resume"}</a>
+                                        : "No file chosen"}
                                 </span>
                             </div>
                         </div>

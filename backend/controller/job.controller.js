@@ -26,6 +26,19 @@ export const postJob = async (req,res) =>{
             company: companyId,
             created_by: userId
         });
+
+        const admins = await User.find({ role: "admin" }).select("_id");
+        if (admins.length) {
+            await Notification.insertMany(
+                admins.map((a) => ({
+                    user: a._id,
+                    message: `New job "${job.title}" is waiting for approval.`,
+                    type: "job_posted",
+                    relatedJob: job._id
+                }))
+            );
+        }
+
         return res.status(201).json({
             message: "New Job created Successfully.... ",
             job,
@@ -218,6 +231,46 @@ export const updateJobStatus = async (req, res) => {
             job,
             success: true
         });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+}
+//delete job (recruiter can delete own job, admin can delete any)
+export const deleteJob = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.id;
+
+        const job = await Job.findById(id);
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found",
+                success: false
+            });
+        }
+
+        const requestingUser = await User.findById(userId);
+        const isOwner = job.created_by.toString() === userId;
+        const isAdmin = requestingUser?.role === "admin";
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({
+                message: "You are not authorized to delete this job",
+                success: false
+            });
+        }
+
+        await Job.findByIdAndDelete(id);
+
+        return res.status(200).json({
+            message: "Job deleted successfully",
+            success: true
+        });
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({

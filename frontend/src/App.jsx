@@ -10,6 +10,7 @@ import MyJobs from "./pages/MyJobs";
 import JobDetails from "./pages/JobDetails";
 import PostJob from "./pages/PostJob";
 import AdminJobs from "./pages/AdminJobs";
+import MyPostedJob from "./pages/MyPostedJob";
 import Applicants from "./pages/Applicants";
 import Conversations from "./pages/Conversations";
 import Chat from "./pages/Chat";
@@ -27,6 +28,7 @@ import ResetPassword from "./pages/ResetPassword";
 import AdminProfile from "./pages/AdminProfile";
 import AdminSettings from "./pages/AdminSettings";
 import AdminHelp from "./pages/AdminHelp";
+import VerifyCode from "./pages/VerifyCode";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -47,6 +49,7 @@ function App() {
         <Route path="/jobs/:id" element={<JobDetails />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/jobs" element={<AdminJobs />} />
+        <Route path="/my-posted-jobs" element={<MyPostedJob />} />
         <Route path="/admin/jobs/post" element={<PostJob />} />
         <Route path="/admin/jobs/:id/applicants" element={<Applicants />} />
         <Route path="/messages" element={<Conversations />} />
@@ -63,6 +66,7 @@ function App() {
         <Route path="/admin/profile" element={<AdminProfile />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/help" element={<AdminHelp />} />
+        <Route path="/verify-code" element={<VerifyCode />} />
       </Routes>
       </div>
       <Footer/>

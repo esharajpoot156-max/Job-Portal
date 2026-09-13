@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"; 
 import crypto from "crypto"; 
 import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmail.js"; 
+import path from "path";
 import cloudinary from "../utils/cloudinary.js"; 
 import getDataUri from "../utils/datauri.js"; 
  
@@ -21,7 +22,6 @@ export const register = async (req,res) =>{
             }); 
         }; 
 
-        // Only allow student or recruiter to self-register; admin is set manually in DB
         if(role !== "student" && role !== "recruiter"){
             return res.status(400).json({
                 message: "Invalid role.",
@@ -38,10 +38,10 @@ export const register = async (req,res) =>{
         } 
         const hashedPassword  = await bcrypt.hash(password, 10); 
  
-        const verificationToken = crypto.randomBytes(32).toString("hex"); 
-        const verificationTokenExpiry = Date.now() + 60 * 60 * 1000; // 1 hour 
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString(); 
+        const verificationTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min 
  
-        await User.create({ 
+        const newUser = await User.create({ 
             fullname: isEmployer ? undefined : fullname, 
             companyName: isEmployer ? companyName : undefined, 
             email, 
@@ -54,8 +54,9 @@ export const register = async (req,res) =>{
         await sendVerificationEmail(email, verificationToken); 
  
         return res.status(201).json({ 
-            message: "Account created successfully. Please check your email to verify your account.", 
-            success: true 
+            message: "Account created successfully. Please check your email for the verification code.", 
+            success: true,
+            email: newUser.email
         }); 
     } catch(error){ 
         console.log(error); 
@@ -66,19 +67,27 @@ export const register = async (req,res) =>{
     } 
 } 
  
-//verify email 
+//verify email with code
 export const verifyEmail = async (req,res) =>{ 
     try{ 
-        const { token } = req.params; 
+        const { email, code } = req.body; 
+
+        if(!email || !code){
+            return res.status(400).json({
+                message: "Email and code are required",
+                success: false
+            });
+        }
  
         const foundUser = await User.findOne({ 
-            verificationToken: token, 
+            email,
+            verificationToken: code, 
             verificationTokenExpiry: { $gt: Date.now() } 
         }); 
  
         if(!foundUser){ 
             return res.status(400).json({ 
-                message: "Invalid or expired verification link.", 
+                message: "Invalid or expired verification code.", 
                 success: false 
             }); 
         } 
@@ -102,7 +111,7 @@ export const verifyEmail = async (req,res) =>{
     } 
 } 
  
-//resend verification email 
+//resend verification code 
 export const resendVerification = async (req,res) =>{ 
     try{ 
         const { email } = req.body; 
@@ -128,8 +137,8 @@ export const resendVerification = async (req,res) =>{
             }); 
         } 
  
-        const verificationToken = crypto.randomBytes(32).toString("hex"); 
-        const verificationTokenExpiry = Date.now() + 60 * 60 * 1000; 
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString(); 
+        const verificationTokenExpiry = Date.now() + 15 * 60 * 1000; 
  
         foundUser.verificationToken = verificationToken; 
         foundUser.verificationTokenExpiry = verificationTokenExpiry; 
@@ -138,7 +147,7 @@ export const resendVerification = async (req,res) =>{
         await sendVerificationEmail(email, verificationToken); 
  
         return res.status(200).json({ 
-            message: "Verification email resent successfully.", 
+            message: "Verification code resent successfully.", 
             success: true 
         }); 
  
@@ -149,7 +158,7 @@ export const resendVerification = async (req,res) =>{
             success: false 
         }); 
     } 
-} 
+}
  
 //login 
 export const login = async (req,res) =>{ 
@@ -208,7 +217,7 @@ export const login = async (req,res) =>{
             notifications: existingUser.notifications 
         } 
  
-        return res.status(200).cookie("token",token, {maxAge: 1*24*60*60*1000, httpOnly: true, sameSite: 'strict'}) .json ({ 
+        return res.status(200).cookie("token",token, {maxAge: 1*24*60*60*1000, httpOnly: true, sameSite: 'none', secure: true}) .json ({
             message: `Welcome back ${userData.fullname}`,  
             user: userData, 
             success: true 
@@ -329,7 +338,8 @@ export const resetPassword = async (req,res) =>{
 export const updateProfile = async (req,res) =>{ 
     try{ 
         const {fullname,email, phoneNumber,bio,skills,city,qualification,experience,jobPreference,salaryExpectation } = req.body; 
-        const file = req.file; 
+        const resumeFile = req.files?.file?.[0]; 
+        const profilePhotoFile = req.files?.profilePhoto?.[0]; 
  
         let skillsArray; 
         if(skills){ 
@@ -364,14 +374,30 @@ export const updateProfile = async (req,res) =>{
         if(jobPreference !== undefined) user.profile.jobPreference = jobPreference 
         if(salaryExpectation !== undefined) user.profile.salaryExpectation = salaryExpectation 
  
-        // resume upload 
-        if(file){ 
-            const fileUri = getDataUri(file); 
-            const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { 
-                resource_type: "raw" 
+        // resume upload
+        if(resumeFile){ 
+    const fileUri = getDataUri(resumeFile); 
+    const ext = path.extname(resumeFile.originalname);
+    console.log("Uploading with public_id:", `resumes/${userId}_${Date.now()}${ext}`);
+    const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { 
+        resource_type: "raw",
+        public_id: `resumes/${userId}_${Date.now()}${ext}`
+    }); 
+    console.log("Cloudinary response URL:", cloudResponse.secure_url);
+    user.profile.resume = cloudResponse.secure_url; 
+    user.profile.resumeOriginalname = resumeFile.originalname; 
+}
+
+
+
+        // profile picture upload 
+        if(profilePhotoFile){ 
+            const photoUri = getDataUri(profilePhotoFile); 
+            const photoResponse = await cloudinary.uploader.upload(photoUri.content, { 
+                resource_type: "image", 
+                folder: "profile_photos" 
             }); 
-            user.profile.resume = cloudResponse.secure_url; 
-            user.profile.resumeOriginalname = file.originalname; 
+            user.profile.profilePhoto = photoResponse.secure_url; 
         } 
  
         await user.save(); 
