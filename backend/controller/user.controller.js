@@ -377,13 +377,17 @@ export const updateProfile = async (req,res) =>{
         // resume upload
         if(resumeFile){ 
     const fileUri = getDataUri(resumeFile); 
+    const ext = path.extname(resumeFile.originalname);
+    console.log("Uploading with public_id:", `resumes/${userId}_${Date.now()}${ext}`);
     const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { 
-        resource_type: "auto",
-        format: "pdf"
+        resource_type: "raw",
+        public_id: `resumes/${userId}_${Date.now()}${ext}`
     }); 
+    console.log("Cloudinary response URL:", cloudResponse.secure_url);
     user.profile.resume = cloudResponse.secure_url; 
     user.profile.resumeOriginalname = resumeFile.originalname; 
-} 
+}
+
 
 
         // profile picture upload 
