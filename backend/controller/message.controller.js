@@ -186,7 +186,8 @@ export const markAsSeen = async (req, res) => {
         });
     }
 }
-// deleting a message
+
+  // deleting a message
 export const deleteMessage = async (req, res) => {
     try{
         const userId = req.id;
@@ -224,6 +225,45 @@ export const deleteMessage = async (req, res) => {
 
         return res.status(200).json({
             message: "Message deleted",
+            success: true
+        });
+
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+}
+
+// deleting whole conversation
+export const deleteConversation = async (req, res) => {
+    try{
+        const userId = req.id;
+        const otherUserId = req.params.id;
+
+        const conversation = await Conversation.findOne({
+            participants: { $all: [userId, otherUserId] }
+        });
+
+        if(!conversation){
+            return res.status(404).json({
+                message: "Conversation not found",
+                success: false
+            });
+        }
+
+        await Message.deleteMany({ conversationId: conversation._id });
+        await Conversation.findByIdAndDelete(conversation._id);
+
+        const receiverSocketId = getReceiverSocketId(otherUserId);
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("conversationDeleted", { conversationId: conversation._id, deletedBy: userId });
+        }
+
+        return res.status(200).json({
+            message: "Conversation deleted",
             success: true
         });
 
