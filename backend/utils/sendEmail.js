@@ -25,17 +25,15 @@ const sendBrevoEmail = async ({ toEmail, toName, subject, html }) => {
     return response.json();
 };
 
-export const sendVerificationEmail = async (toEmail, token) => {
-    const verifyUrl = `${process.env.CLIENT_URL}/verify/${token}`;
-
+export const sendVerificationEmail = async (toEmail, code) => {
     await sendBrevoEmail({
         toEmail,
         subject: "Verify your email",
         html: `
             <h2>Email Verification</h2>
-            <p>Click the link below to verify your account:</p>
-            <a href="${verifyUrl}">${verifyUrl}</a>
-            <p>This link will expire in 1 hour.</p>
+            <p>Your verification code is:</p>
+            <h1 style="letter-spacing: 4px;">${code}</h1>
+            <p>This code will expire in 15 minutes.</p>
         `
     });
 };

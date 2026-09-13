@@ -28,6 +28,7 @@ import ResetPassword from "./pages/ResetPassword";
 import AdminProfile from "./pages/AdminProfile";
 import AdminSettings from "./pages/AdminSettings";
 import AdminHelp from "./pages/AdminHelp";
+import VerifyCode from "./pages/VerifyCode";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -65,6 +66,7 @@ function App() {
         <Route path="/admin/profile" element={<AdminProfile />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/help" element={<AdminHelp />} />
+        <Route path="/verify-code" element={<VerifyCode />} />
       </Routes>
       </div>
       <Footer/>

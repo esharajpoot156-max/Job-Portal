@@ -62,9 +62,8 @@ const Register = () => {
             };
             const res = await axiosInstance.post("/user/register", payload);
             if (res.data.success) {
-                alert(res.data.message);
-                navigate(`/login?role=${input.role}`);
-            }
+    navigate(`/verify-code?email=${encodeURIComponent(input.email)}`);
+}
         } catch (error) {
             alert(error.response?.data?.message || "Something went wrong");
         } finally {

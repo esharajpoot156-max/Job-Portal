@@ -21,7 +21,6 @@ export const register = async (req,res) =>{
             }); 
         }; 
 
-        // Only allow student or recruiter to self-register; admin is set manually in DB
         if(role !== "student" && role !== "recruiter"){
             return res.status(400).json({
                 message: "Invalid role.",
@@ -38,10 +37,10 @@ export const register = async (req,res) =>{
         } 
         const hashedPassword  = await bcrypt.hash(password, 10); 
  
-        const verificationToken = crypto.randomBytes(32).toString("hex"); 
-        const verificationTokenExpiry = Date.now() + 60 * 60 * 1000; // 1 hour 
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString(); 
+        const verificationTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min 
  
-        await User.create({ 
+        const newUser = await User.create({ 
             fullname: isEmployer ? undefined : fullname, 
             companyName: isEmployer ? companyName : undefined, 
             email, 
@@ -54,8 +53,9 @@ export const register = async (req,res) =>{
         await sendVerificationEmail(email, verificationToken); 
  
         return res.status(201).json({ 
-            message: "Account created successfully. Please check your email to verify your account.", 
-            success: true 
+            message: "Account created successfully. Please check your email for the verification code.", 
+            success: true,
+            email: newUser.email
         }); 
     } catch(error){ 
         console.log(error); 
@@ -66,19 +66,27 @@ export const register = async (req,res) =>{
     } 
 } 
  
-//verify email 
+//verify email with code
 export const verifyEmail = async (req,res) =>{ 
     try{ 
-        const { token } = req.params; 
+        const { email, code } = req.body; 
+
+        if(!email || !code){
+            return res.status(400).json({
+                message: "Email and code are required",
+                success: false
+            });
+        }
  
         const foundUser = await User.findOne({ 
-            verificationToken: token, 
+            email,
+            verificationToken: code, 
             verificationTokenExpiry: { $gt: Date.now() } 
         }); 
  
         if(!foundUser){ 
             return res.status(400).json({ 
-                message: "Invalid or expired verification link.", 
+                message: "Invalid or expired verification code.", 
                 success: false 
             }); 
         } 
@@ -102,7 +110,7 @@ export const verifyEmail = async (req,res) =>{
     } 
 } 
  
-//resend verification email 
+//resend verification code 
 export const resendVerification = async (req,res) =>{ 
     try{ 
         const { email } = req.body; 
@@ -128,8 +136,8 @@ export const resendVerification = async (req,res) =>{
             }); 
         } 
  
-        const verificationToken = crypto.randomBytes(32).toString("hex"); 
-        const verificationTokenExpiry = Date.now() + 60 * 60 * 1000; 
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString(); 
+        const verificationTokenExpiry = Date.now() + 15 * 60 * 1000; 
  
         foundUser.verificationToken = verificationToken; 
         foundUser.verificationTokenExpiry = verificationTokenExpiry; 
@@ -138,7 +146,7 @@ export const resendVerification = async (req,res) =>{
         await sendVerificationEmail(email, verificationToken); 
  
         return res.status(200).json({ 
-            message: "Verification email resent successfully.", 
+            message: "Verification code resent successfully.", 
             success: true 
         }); 
  
@@ -149,7 +157,7 @@ export const resendVerification = async (req,res) =>{
             success: false 
         }); 
     } 
-} 
+}
  
 //login 
 export const login = async (req,res) =>{ 
