@@ -22,17 +22,19 @@ const MyPostedJob = () => {
             setLoading(false);
         }
     };
+
     const deleteHandler = async (jobId) => {
-    if (!window.confirm("Are you sure you want to delete this job?")) return;
-    try {
-        const res = await axiosInstance.delete(`/job/delete/${jobId}`);
-        if (res.data.success) {
-            setJobs((prev) => prev.filter((job) => job._id !== jobId));
+        if (!window.confirm("Are you sure you want to delete this job?")) return;
+        try {
+            const res = await axiosInstance.delete(`/job/delete/${jobId}`);
+            if (res.data.success) {
+                setJobs((prev) => prev.filter((job) => job._id !== jobId));
+            }
+        } catch (error) {
+            console.log(error);
+            alert(error.response?.data?.message || "Failed to delete job");
         }
-    } catch (error) {
-        console.log(error);
-        alert(error.response?.data?.message || "Failed to delete job");
-    }};
+    };
 
     useEffect(() => {
         fetchMyJobs();
@@ -102,9 +104,6 @@ const MyPostedJob = () => {
                                     </span>
                                 )}
                                 <span className="text-xs text-gray-400 whitespace-nowrap">
-                                    Posted {new Date(job.createdAt).toLocaleDateString()}
-                                </span>
-                                                                <span className="text-xs text-gray-400 whitespace-nowrap">
                                     Posted {new Date(job.createdAt).toLocaleDateString()}
                                 </span>
                                 <button
