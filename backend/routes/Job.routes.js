@@ -1,7 +1,7 @@
 import express from "express";
 import isAuthenticated from "../Middlewares/isAuthenticated.js";
 import isAdmin from "../Middlewares/isAdmin.js";
-import { getAdminJobs, getAllJob, getJobById, postJob, getPendingJobs, updateJobStatus } from "../controller/job.controller.js";
+import { getAdminJobs, getAllJob, getJobById, postJob, getPendingJobs, updateJobStatus, deleteJob } from "../controller/job.controller.js";
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.route("/getadminJobs").get(isAuthenticated,getAdminJobs);
 router.route("/get/:id").get(isAuthenticated, getJobById); 
 router.route("/pending").get(isAuthenticated, isAdmin, getPendingJobs);
 router.route("/status/:id").patch(isAuthenticated, isAdmin, updateJobStatus);
+router.route("/delete/:id").delete(isAuthenticated, deleteJob);
 
 export default router;
