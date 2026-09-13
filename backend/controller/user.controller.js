@@ -6,6 +6,7 @@ import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmai
 import path from "path";
 import cloudinary from "../utils/cloudinary.js"; 
 import getDataUri from "../utils/datauri.js"; 
+import { Company } from "../models/company.model.js";
  
 //Register 
 export const register = async (req,res) =>{ 
@@ -36,6 +37,17 @@ export const register = async (req,res) =>{
                 success : false 
             }) 
         } 
+
+        if(isEmployer){
+            const existingCompany = await Company.findOne({ name: companyName });
+            if(existingCompany){
+                return res.status(400).json({
+                    message: "A company with this name already exists. Please choose a different name.",
+                    success: false
+                });
+            }
+        }
+
         const hashedPassword  = await bcrypt.hash(password, 10); 
  
         const verificationToken = Math.floor(100000 + Math.random() * 900000).toString(); 
@@ -50,6 +62,18 @@ export const register = async (req,res) =>{
             verificationToken, 
             verificationTokenExpiry 
         }); 
+
+        // auto-create company for recruiters
+        if(isEmployer){
+            const newCompany = await Company.create({
+                name: companyName,
+                email,
+                userId: newUser._id
+            });
+
+            newUser.profile.company = newCompany._id;
+            await newUser.save();
+        }
  
         await sendVerificationEmail(email, verificationToken); 
  
@@ -398,7 +422,11 @@ export const updateProfile = async (req,res) =>{
                 folder: "profile_photos" 
             }); 
             user.profile.profilePhoto = photoResponse.secure_url; 
-        } 
+        }
+        // remove profile picture
+        if(req.body.removePhoto === "true"){
+            user.profile.profilePhoto = "";
+        }
  
         await user.save(); 
         user= { 

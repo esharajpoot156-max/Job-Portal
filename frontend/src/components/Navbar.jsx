@@ -47,7 +47,8 @@ const ADMIN_LINKS = [
 ];
 
 const menuLinksFor = (isEmployer) => [
-  { to: "/profile", label: isEmployer ? "Company Profile" : "Profile", icon: ICONS.profile },
+  { to: "/profile", label: "Profile", icon: ICONS.profile },
+  ...(isEmployer ? [{ to: "/company/register", label: "Company Details", icon: ICONS.postJob }] : []),
   { to: "/settings", label: "Settings", icon: ICONS.settings },
   { to: "/help", label: "Help", icon: ICONS.help },
 ];
@@ -65,7 +66,6 @@ const LinkList = ({ links, size = "text-base", onClick }) =>
     </Link>
   ));
 
-// Avatar showing profile initial
 // Avatar showing profile photo or initial
 const Avatar = ({ user, size = "h-9 w-9", text = "text-sm" }) => {
   const initial = (user?.fullname || user?.email || "?").trim().charAt(0).toUpperCase();

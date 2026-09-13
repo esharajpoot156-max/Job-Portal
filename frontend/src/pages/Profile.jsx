@@ -25,6 +25,7 @@ const Profile = () => {
     const [existingResumeName, setExistingResumeName] = useState(user?.profile?.resumeOriginalname || "");
     const [profilePhoto, setProfilePhoto] = useState(null);
     const [photoPreview, setPhotoPreview] = useState(user?.profile?.profilePhoto || null);
+    const [removePhoto, setRemovePhoto] = useState(false);
     const [loading, setLoading] = useState(false);
     const [profileCreated, setProfileCreated] = useState(
         !!(user?.profile?.bio || user?.profile?.qualification || user?.profile?.skills?.length || user?.profile?.resume)
@@ -43,7 +44,14 @@ const Profile = () => {
         if (selected) {
             setProfilePhoto(selected);
             setPhotoPreview(URL.createObjectURL(selected));
+            setRemovePhoto(false);
         }
+    };
+
+    const removePhotoHandler = () => {
+        setProfilePhoto(null);
+        setPhotoPreview(null);
+        setRemovePhoto(true);
     };
 
     const submitHandler = async (e) => {
@@ -52,6 +60,7 @@ const Profile = () => {
         Object.entries(input).forEach(([key, value]) => formData.append(key, value));
         if (file) formData.append("file", file);
         if (profilePhoto) formData.append("profilePhoto", profilePhoto);
+        if (removePhoto) formData.append("removePhoto", "true");
 
         try {
             setLoading(true);
@@ -63,9 +72,10 @@ const Profile = () => {
                 setProfileCreated(true);
                 setExistingResume(res.data.user?.profile?.resume || existingResume);
                 setExistingResumeName(res.data.user?.profile?.resumeOriginalname || existingResumeName);
-                setPhotoPreview(res.data.user?.profile?.profilePhoto || photoPreview);
+                setPhotoPreview(res.data.user?.profile?.profilePhoto || null);
                 setFile(null);
                 setProfilePhoto(null);
+                setRemovePhoto(false);
                 alert(res.data.message);
             }
         } catch (error) {
@@ -101,6 +111,15 @@ const Profile = () => {
                         <input type="file" accept="image/*" onChange={photoHandler} className="hidden" />
                     </label>
                 </div>
+                {photoPreview && (
+                    <button
+                        type="button"
+                        onClick={removePhotoHandler}
+                        className="text-xs text-red-500 hover:underline"
+                    >
+                        Remove photo
+                    </button>
+                )}
                 <span className="text-xs text-gray-500 dark:text-gray-400">Tap the pencil to change photo</span>
             </div>
 
