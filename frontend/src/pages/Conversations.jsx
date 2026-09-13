@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ShieldOff, Mail } from "lucide-react";
+import { ShieldOff, Mail, Trash2 } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 
 const Conversations = () => {
@@ -25,6 +25,20 @@ const Conversations = () => {
     useEffect(() => {
         fetchConversations();
     }, []);
+
+    const deleteHandler = async (e, otherUserId, conversationId) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!window.confirm("Delete this conversation? This can't be undone.")) return;
+        try {
+            const res = await axiosInstance.delete(`/message/conversation/${otherUserId}`);
+            if (res.data.success) {
+                setConversations((prev) => prev.filter((c) => c._id !== conversationId));
+            }
+        } catch (error) {
+            alert(error.response?.data?.message || "Could not delete conversation");
+        }
+    };
 
     return (
         <div className="p-8 min-h-screen bg-white dark:bg-[#121214] dark:text-white">
@@ -73,6 +87,14 @@ const Conversations = () => {
                                             Blocked
                                         </span>
                                     )}
+
+                                    <button
+                                        onClick={(e) => deleteHandler(e, otherUser?._id, conv._id)}
+                                        title="Delete conversation"
+                                        className="text-gray-400 hover:text-red-500 transition shrink-0 p-1"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </Link>
                             );
                         })
