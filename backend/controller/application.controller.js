@@ -77,8 +77,11 @@ export const getAppliedJobs = async(req,res) =>{
                 success: false 
             })
         };
+
+        const validApplications = application.filter((app) => app.job !== null);
+
         return res.status(200).json({
-            applications: application,
+            applications: validApplications,
             success: true
         })
         
