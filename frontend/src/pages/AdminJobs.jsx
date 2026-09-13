@@ -19,6 +19,19 @@ const AdminJobs = () => {
         }
     };
 
+    const deleteHandler = async (jobId) => {
+        if (!window.confirm("Are you sure you want to delete this job?")) return;
+        try {
+            const res = await axiosInstance.delete(`/job/delete/${jobId}`);
+            if (res.data.success) {
+                setJobs((prev) => prev.filter((job) => job._id !== jobId));
+            }
+        } catch (error) {
+            console.log(error);
+            alert(error.response?.data?.message || "Failed to delete job");
+        }
+    };
+
     useEffect(() => {
         fetchJobs();
     }, []);
@@ -59,6 +72,12 @@ const AdminJobs = () => {
                                             Waiting for approval
                                         </span>
                                     )}
+                                    <button
+                                        onClick={() => deleteHandler(job._id)}
+                                        className="text-sm px-3 py-1 rounded border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+                                    >
+                                        Delete
+                                    </button>
                                 </div>
                             )}
                         </div>

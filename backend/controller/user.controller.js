@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"; 
 import crypto from "crypto"; 
 import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmail.js"; 
+import path from "path";
 import cloudinary from "../utils/cloudinary.js"; 
 import getDataUri from "../utils/datauri.js"; 
  
@@ -373,15 +374,17 @@ export const updateProfile = async (req,res) =>{
         if(jobPreference !== undefined) user.profile.jobPreference = jobPreference 
         if(salaryExpectation !== undefined) user.profile.salaryExpectation = salaryExpectation 
  
-        // resume upload 
+        // resume upload
         if(resumeFile){ 
-            const fileUri = getDataUri(resumeFile); 
-            const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { 
-                resource_type: "raw" 
-            }); 
-            user.profile.resume = cloudResponse.secure_url; 
-            user.profile.resumeOriginalname = resumeFile.originalname; 
-        } 
+    const fileUri = getDataUri(resumeFile); 
+    const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { 
+        resource_type: "auto",
+        format: "pdf"
+    }); 
+    user.profile.resume = cloudResponse.secure_url; 
+    user.profile.resumeOriginalname = resumeFile.originalname; 
+} 
+
 
         // profile picture upload 
         if(profilePhotoFile){ 
