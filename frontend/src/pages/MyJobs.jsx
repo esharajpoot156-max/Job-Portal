@@ -40,8 +40,9 @@ const MyJobs = () => {
         setSearchParams(nextTab === "applied" ? { tab: "applied" } : {});
     };
 
-    const applications = tab === "applied" ? appliedJobs : null;
-    const jobs = tab === "saved" ? savedJobs : appliedJobs.map((app) => app.job);
+    const validApplications = appliedJobs.filter((app) => app.job);
+    const applications = tab === "applied" ? validApplications : null;
+    const jobs = tab === "saved" ? savedJobs : validApplications.map((app) => app.job);
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#121214]">
