@@ -1,6 +1,6 @@
 import express from "express";
 import isAuthenticated from "../Middlewares/isAuthenticated.js";
-import { sendMessage, getMessages, getConversations, markAsSeen, deleteMessage } from "../controller/message.controller.js";
+import { sendMessage, getMessages, getConversations, markAsSeen, deleteMessage, deleteConversation } from "../controller/message.controller.js";
 
 const router = express.Router();
 
@@ -9,5 +9,6 @@ router.route("/get/:id").get(isAuthenticated, getMessages);
 router.route("/conversations").get(isAuthenticated, getConversations);
 router.route("/seen/:id").patch(isAuthenticated, markAsSeen);
 router.route("/delete/:messageId").delete(isAuthenticated, deleteMessage);
+router.route("/conversation/:id").delete(isAuthenticated, deleteConversation);
 
 export default router;
