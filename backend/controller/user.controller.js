@@ -228,10 +228,17 @@ export const login = async (req,res) =>{
             userId : existingUser._id, 
         } 
         const token = await jwt.sign(tokendata,process.env.SECRET_KEY,{expiresIn: '1d'}); 
+
+        // get company name of recruiter
+        let displayName = existingUser.fullname;
+        if(existingUser.role === "recruiter"){
+            const company = await Company.findOne({ userId: existingUser._id }).select("name");
+            displayName = company?.name || existingUser.companyName;
+        }
  
         const userData = { 
             _id : existingUser._id, 
-            fullname: existingUser.role === "recruiter" ? existingUser.companyName : existingUser.fullname, 
+            fullname: displayName, 
             email:existingUser.email, 
             phoneNumber:existingUser.phoneNumber, 
             role: existingUser.role, 
@@ -357,7 +364,8 @@ export const resetPassword = async (req,res) =>{
             success: false 
         }); 
     } 
-} 
+}
+
 //update profile 
 export const updateProfile = async (req,res) =>{ 
     try{ 
@@ -411,8 +419,6 @@ export const updateProfile = async (req,res) =>{
     user.profile.resume = cloudResponse.secure_url; 
     user.profile.resumeOriginalname = resumeFile.originalname; 
 }
-
-
 
         // profile picture upload 
         if(profilePhotoFile){ 

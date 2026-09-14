@@ -2,6 +2,7 @@ import { user as User } from "../models/user.model.js";
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
 import { Notification } from "../models/notification.model.js";
+import { Company } from "../models/company.model.js";
 import { getReceiverSocketId, io } from "../utils/socket.js";
 
 export const sendMessage = async (req, res) => {
@@ -130,11 +131,45 @@ export const getConversations = async (req, res) => {
             participants: userId
         }).populate({
             path: "participants",
-            select: "fullname email profile.profilePhoto role"
+            select: "fullname companyName email profile.profilePhoto role"
         }).sort({ updatedAt: -1 });
 
+        // collect recruiter IDs
+        const recruiterIds = [];
+        conversations.forEach((conv) => {
+            conv.participants.forEach((p) => {
+                if (p.role === "recruiter") recruiterIds.push(p._id.toString());
+            });
+        });
+
+        let companyMap = {};
+        if (recruiterIds.length > 0) {
+            const companies = await Company.find({ userId: { $in: recruiterIds } }).select("name logo userId");
+            companyMap = companies.reduce((acc, c) => {
+                acc[c.userId.toString()] = { name: c.name, logo: c.logo || "" };
+                return acc;
+            }, {});
+        }
+
+        // add companyName and logo with recruiter
+        const conversationsWithCompany = conversations.map((conv) => {
+            const convObj = conv.toObject();
+            convObj.participants = convObj.participants.map((p) => {
+                if (p.role === "recruiter") {
+                    const companyInfo = companyMap[p._id.toString()];
+                    return {
+                        ...p,
+                        companyName: companyInfo?.name || p.companyName || "",
+                        companyLogo: companyInfo?.logo || ""
+                    };
+                }
+                return p;
+            });
+            return convObj;
+        });
+
         return res.status(200).json({
-            conversations,
+            conversations: conversationsWithCompany,
             success: true
         });
 
@@ -241,10 +276,11 @@ export const deleteMessage = async (req, res) => {
 export const deleteConversation = async (req, res) => {
     try{
         const userId = req.id;
-        const otherUserId = req.params.id;
+        const conversationId = req.params.id;
 
         const conversation = await Conversation.findOne({
-            participants: { $all: [userId, otherUserId] }
+            _id: conversationId,
+            participants: userId
         });
 
         if(!conversation){
@@ -254,12 +290,18 @@ export const deleteConversation = async (req, res) => {
             });
         }
 
+        const otherUserId = conversation.participants.find(
+            (p) => p.toString() !== userId
+        );
+
         await Message.deleteMany({ conversationId: conversation._id });
         await Conversation.findByIdAndDelete(conversation._id);
 
-        const receiverSocketId = getReceiverSocketId(otherUserId);
-        if(receiverSocketId){
-            io.to(receiverSocketId).emit("conversationDeleted", { conversationId: conversation._id, deletedBy: userId });
+        if(otherUserId){
+            const receiverSocketId = getReceiverSocketId(otherUserId.toString());
+            if(receiverSocketId){
+                io.to(receiverSocketId).emit("conversationDeleted", { conversationId: conversation._id, deletedBy: userId });
+            }
         }
 
         return res.status(200).json({

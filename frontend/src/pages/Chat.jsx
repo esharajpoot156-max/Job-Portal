@@ -18,6 +18,8 @@ const Chat = () => {
     const bottomRef = useRef(null);
 
     const isBlocked = user?.blockedUsers?.includes(receiverId);
+    const receiverName = receiver?.role === "recruiter" ? receiver?.companyName : receiver?.fullname;
+    const ownName = user?.fullname;
 
     const formatTime = (t) => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
 
@@ -64,7 +66,7 @@ const Chat = () => {
     };
 
     const blockHandler = async () => {
-        if (!window.confirm(`Block ${receiver?.fullname || "this user"}? They won't be able to message you anymore.`)) return;
+        if (!window.confirm(`Block ${receiverName || "this user"}? They won't be able to message you anymore.`)) return;
         try {
             const res = await axiosInstance.post(`/user/block/${receiverId}`);
             if (res.data.success) {
@@ -87,7 +89,7 @@ const Chat = () => {
             <div className="p-4 border-b dark:border-gray-700 font-semibold flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                     <button onClick={() => navigate(-1)} className="text-gray-500 dark:text-gray-400"><ArrowLeft className="w-5 h-5" /></button>
-                    {receiver?.fullname || "Chat"}
+                    {receiverName || "Chat"}
                 </div>
                 {isBlocked ? (
                     <button
@@ -115,7 +117,7 @@ const Chat = () => {
                     const isOwn = msg.sender === user._id;
                     return (
                         <div key={msg._id} className={`group flex flex-col ${isOwn ? "items-end" : "items-start"}`}>
-                            <span className="text-[10px] text-gray-400 px-1">{isOwn ? user.fullname : receiver?.fullname || "User"}</span>
+                            <span className="text-[10px] text-gray-400 px-1">{isOwn ? ownName : receiverName || "User"}</span>
                             <div className={`flex items-center gap-2 ${isOwn ? "flex-row-reverse" : ""}`}>
                                 <div className={`max-w-xs px-4 py-2 rounded-lg ${isOwn ? "bg-[#8B5CF6] text-white" : "bg-[#F4F4F5] dark:bg-gray-700 dark:text-white"}`}>
                                     {msg.text}
