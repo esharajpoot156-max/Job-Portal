@@ -197,4 +197,4 @@ const JobDetails = () => {
     );
 };
 
-export default JobDetails;0
+export default JobDetails;
