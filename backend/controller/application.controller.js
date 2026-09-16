@@ -2,6 +2,10 @@ import {Application} from "../models/application.model.js"
 import {Job} from "../models/job.model.js"
 import { Notification } from "../models/notification.model.js";
 import { sendStatusUpdateEmail } from "../utils/sendEmail.js";
+import { user as User } from "../models/user.model.js";
+import cloudinary from "../utils/cloudinary.js";
+import getDataUri from "../utils/datauri.js";
+import path from "path";
 
 export const applyJob = async (req,res) =>{
     try{
@@ -30,10 +34,44 @@ export const applyJob = async (req,res) =>{
                 success : false
             })
         }
+
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(404).json({
+                message: "User not Found",
+                success: false
+            })
+        }
+
+        // Update Resume
+        const resumeFile = req.file;
+        if(resumeFile){
+            const fileUri = getDataUri(resumeFile);
+            const ext = path.extname(resumeFile.originalname);
+            const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+                resource_type: "raw",
+                public_id: `resumes/${userId}_${Date.now()}${ext}`
+            });
+            if(!user.profile) user.profile = {};
+            user.profile.resume = cloudResponse.secure_url;
+            user.profile.resumeOriginalname = resumeFile.originalname;
+            await user.save();
+        }
+
+        // Restriction on resume
+        if(!user.profile?.resume){
+            return res.status(400).json({
+                message: "Please upload a resume before applying.",
+                success: false
+            })
+        }
+
         //create a new application
         const newApplication = await Application.create({
             job: jobId,
-            applicant: userId
+            applicant: userId,
+            resume: user.profile.resume,
+            resumeOriginalname: user.profile.resumeOriginalname
         });
         job.applications.push(newApplication._id);
         await job.save();

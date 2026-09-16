@@ -12,6 +12,7 @@ const JobDetails = () => {
     const [loading, setLoading] = useState(false);
     const [saved, setSaved] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [resumeFile, setResumeFile] = useState(null);
 
     useEffect(() => {
         axiosInstance.get(`/job/get/${id}`).then((res) => {
@@ -28,10 +29,23 @@ const JobDetails = () => {
         setApplied(job.applications?.some(a => (a?.applicant?._id || a?.applicant || a) === user._id));
     }, [job, user]);
 
+    const resumeFileHandler = (e) => {
+        setResumeFile(e.target.files[0]);
+    };
+
     const applyHandler = async () => {
+        if (!user?.profile?.resume && !resumeFile) {
+            alert("Please upload a resume to apply.");
+            return;
+        }
         try {
             setLoading(true);
-            const res = await axiosInstance.get(`/application/apply/${id}`);
+            const formData = new FormData();
+            if (resumeFile) formData.append("file", resumeFile);
+
+            const res = await axiosInstance.post(`/application/apply/${id}`, formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
             if (res.data.success) {
                 alert(res.data.message);
                 setApplied(true);
@@ -125,6 +139,30 @@ const JobDetails = () => {
 
                     {user?.role === "student" && (
                         <>
+                            {!applied && (
+                                <div className="text-sm">
+                                    <label className="block text-gray-600 dark:text-gray-300 mb-1">
+                                        {user?.profile?.resume ? "Change resume (optional)" : "Upload resume *"}
+                                    </label>
+                                    <div className="flex items-center gap-2 border rounded-lg p-2 bg-white dark:bg-[#121214] dark:border-gray-700">
+                                        <label className="cursor-pointer bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded text-xs">
+                                            Choose File
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.doc,.docx"
+                                                onChange={resumeFileHandler}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                            {resumeFile
+                                                ? resumeFile.name
+                                                : user?.profile?.resumeOriginalname || "No file chosen"}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
                             <button
                                 onClick={applyHandler}
                                 disabled={applied || loading}
@@ -159,4 +197,4 @@ const JobDetails = () => {
     );
 };
 
-export default JobDetails;
+export default JobDetails;0
