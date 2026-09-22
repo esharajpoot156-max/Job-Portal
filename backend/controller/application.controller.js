@@ -103,7 +103,7 @@ export const getAppliedJobs = async(req,res) =>{
         const userId = req.id;
         const application = await Application.find({applicant: userId}).sort({createdAt: -1}).populate({
             path: 'job',
-            options:{sort:{createdAt: -1}}, //sorted mai show 
+            options:{sort:{createdAt: -1}}, 
             populate:{
                 path: 'company',
                 options: {sort:{createdAt:-1}}
@@ -131,7 +131,7 @@ export const getAppliedJobs = async(req,res) =>{
     });
     }
 }
-//admin see how many users apply
+//admin/recriuter see how many users apply
 export const getApplicants = async(req,res) =>{
     try{
         const {id} = req.params;

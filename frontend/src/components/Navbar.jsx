@@ -123,7 +123,7 @@ const Navbar = () => {
   useEffect(() => {
     if (!user) return;
     fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000); // poll every 30s
+    const interval = setInterval(fetchUnreadCount, 30000); 
     return () => clearInterval(interval);
   }, [user]);
 

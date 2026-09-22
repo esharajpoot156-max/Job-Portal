@@ -139,7 +139,7 @@ export const getJobById = async (req,res) =>{
     }
 } 
 
-//admin kitny job create kar raha hai 
+//admin get job
 export const getAdminJobs = async(req,res) =>{
     try {
         const adminId = req.id;

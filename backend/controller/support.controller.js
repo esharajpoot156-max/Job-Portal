@@ -38,6 +38,11 @@ export const createReport = async (req, res) => {
 };
 
 export const getMyTickets = async (req, res) => {
-    const tickets = await SupportTicket.find({ user: req.id }).sort({ createdAt: -1 });
-    return res.status(200).json({ success: true, tickets });
+    try {
+        const tickets = await SupportTicket.find({ user: req.id }).sort({ createdAt: -1 });
+        return res.status(200).json({ success: true, tickets });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
 };

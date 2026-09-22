@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axiosInstance from "../utils/axiosInstance";
 
-const AdminJobs = () => {
+const RecruiterJobs = () => {
     const [jobs, setJobs] = useState([]);
     const { user } = useSelector((store) => store.auth);
     const isEmployer = user?.role === "recruiter";
@@ -88,4 +88,4 @@ const AdminJobs = () => {
     );
 };
 
-export default AdminJobs;
+export default RecruiterJobs;

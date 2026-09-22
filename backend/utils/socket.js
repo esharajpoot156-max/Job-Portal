@@ -12,7 +12,7 @@ const io = new Server(server, {
     }
 });
 
-// online users track karne ke liye
+// track online user
 const userSocketMap = {}; // {userId: socketId}
 
 export const getReceiverSocketId = (receiverId) => userSocketMap[receiverId];

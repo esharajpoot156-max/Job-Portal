@@ -9,8 +9,7 @@ import Jobs from "./pages/Jobs";
 import MyJobs from "./pages/MyJobs";
 import JobDetails from "./pages/JobDetails";
 import PostJob from "./pages/PostJob";
-import AdminJobs from "./pages/AdminJobs";
-import MyPostedJob from "./pages/MyPostedJob";
+import RecruiterJobs from "./pages/RecruiterJobs";
 import Applicants from "./pages/Applicants";
 import Conversations from "./pages/Conversations";
 import Chat from "./pages/Chat";
@@ -48,8 +47,7 @@ function App() {
         <Route path="/my-jobs" element={<MyJobs />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/jobs" element={<AdminJobs />} />
-        <Route path="/my-posted-jobs" element={<MyPostedJob />} />
+        <Route path="/admin/jobs" element={<RecruiterJobs />} />
         <Route path="/admin/jobs/post" element={<PostJob />} />
         <Route path="/admin/jobs/:id/applicants" element={<Applicants />} />
         <Route path="/messages" element={<Conversations />} />
