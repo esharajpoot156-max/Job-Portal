@@ -14,7 +14,7 @@ const Footer = () => {
                 <div>
                     <img src={logo} alt="Job Portal Logo" className="h-20 w-auto" />
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        © 2026 JobEase. All rights reserved.
+                        2026 JobEase. All rights reserved.
                     </p>
                 </div>
 
