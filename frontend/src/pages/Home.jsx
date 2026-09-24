@@ -30,7 +30,7 @@ const Home = () => {
                 <p className="text-gray-600 dark:text-gray-300 max-w-xl mb-10 text-lg">
                     {isAdmin
                         ? "Oversee jobs, companies, and users from a single dashboard. Keep the platform running smoothly."
-                        : "A simple job portal where students find jobs, and recruiters find the right people — fast, easy, and free."}
+                        : "A simple job portal where students find jobs, and recruiters find the right people fast, easy, and free."}
                 </p>
 
                 <div className="flex gap-4">
